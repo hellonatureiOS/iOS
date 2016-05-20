@@ -1,0 +1,424 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1A7741881C8DD9B4000A1B53 /* Pushwoosh.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A7741871C8DD9B4000A1B53 /* Pushwoosh.framework */; };
+		1A77418F1C8DDFAA000A1B53 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A77418E1C8DDFAA000A1B53 /* libz.tbd */; };
+		1A7741911C8DDFBA000A1B53 /* libstdc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A7741901C8DDFBA000A1B53 /* libstdc++.tbd */; };
+		1A7741951C8DE035000A1B53 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A7741941C8DE035000A1B53 /* ImageIO.framework */; };
+		1A7741971C8DE09D000A1B53 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A7741961C8DE09D000A1B53 /* AVFoundation.framework */; };
+		1A7741991C8DE0D3000A1B53 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A7741981C8DE0D3000A1B53 /* SystemConfiguration.framework */; };
+		1AF433F51C43EB090011764B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF433F41C43EB090011764B /* AppDelegate.swift */; };
+		1AF433F71C43EB090011764B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF433F61C43EB090011764B /* ViewController.swift */; };
+		1AF433FA1C43EB090011764B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1AF433F81C43EB090011764B /* Main.storyboard */; };
+		1AF433FC1C43EB090011764B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AF433FB1C43EB090011764B /* Assets.xcassets */; };
+		1AF433FF1C43EB090011764B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1AF433FD1C43EB090011764B /* LaunchScreen.storyboard */; };
+		F7DA441D3C447B052640ECD2 /* Pods_hellonature.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9519B2F46D713EE3892C05A9 /* Pods_hellonature.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1A7741871C8DD9B4000A1B53 /* Pushwoosh.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Pushwoosh.framework; sourceTree = "<group>"; };
+		1A7741891C8DDCE7000A1B53 /* hellonature-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "hellonature-Bridging-Header.h"; sourceTree = "<group>"; };
+		1A77418E1C8DDFAA000A1B53 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		1A7741901C8DDFBA000A1B53 /* libstdc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.tbd"; path = "usr/lib/libstdc++.tbd"; sourceTree = SDKROOT; };
+		1A7741921C8DDFFC000A1B53 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		1A7741941C8DE035000A1B53 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
+		1A7741961C8DE09D000A1B53 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		1A7741981C8DE0D3000A1B53 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		1AF433F11C43EB090011764B /* hellonature.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hellonature.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AF433F41C43EB090011764B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1AF433F61C43EB090011764B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		1AF433F91C43EB090011764B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		1AF433FB1C43EB090011764B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1AF433FE1C43EB090011764B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		1AF434001C43EB090011764B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6E8FC14A95747B35DAE77193 /* Pods-hellonature.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hellonature.debug.xcconfig"; path = "Pods/Target Support Files/Pods-hellonature/Pods-hellonature.debug.xcconfig"; sourceTree = "<group>"; };
+		8904936A67EFD87DF5B4B442 /* Pods-hellonature.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hellonature.release.xcconfig"; path = "Pods/Target Support Files/Pods-hellonature/Pods-hellonature.release.xcconfig"; sourceTree = "<group>"; };
+		9519B2F46D713EE3892C05A9 /* Pods_hellonature.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_hellonature.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		ACCE1D566CD33E41AA295DEC /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1AF433EE1C43EB090011764B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A7741991C8DE0D3000A1B53 /* SystemConfiguration.framework in Frameworks */,
+				1A7741971C8DE09D000A1B53 /* AVFoundation.framework in Frameworks */,
+				1A7741951C8DE035000A1B53 /* ImageIO.framework in Frameworks */,
+				1A7741911C8DDFBA000A1B53 /* libstdc++.tbd in Frameworks */,
+				1A77418F1C8DDFAA000A1B53 /* libz.tbd in Frameworks */,
+				1A7741881C8DD9B4000A1B53 /* Pushwoosh.framework in Frameworks */,
+				F7DA441D3C447B052640ECD2 /* Pods_hellonature.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1AF433E81C43EB090011764B = {
+			isa = PBXGroup;
+			children = (
+				1AF433F31C43EB090011764B /* hellonature */,
+				1AF433F21C43EB090011764B /* Products */,
+				657A82419289470D1521D2A6 /* Frameworks */,
+				6D0029841288E258A1A16A43 /* Pods */,
+			);
+			sourceTree = "<group>";
+		};
+		1AF433F21C43EB090011764B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1AF433F11C43EB090011764B /* hellonature.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1AF433F31C43EB090011764B /* hellonature */ = {
+			isa = PBXGroup;
+			children = (
+				1AF433F41C43EB090011764B /* AppDelegate.swift */,
+				1AF433F61C43EB090011764B /* ViewController.swift */,
+				1AF433F81C43EB090011764B /* Main.storyboard */,
+				1AF433FB1C43EB090011764B /* Assets.xcassets */,
+				1AF433FD1C43EB090011764B /* LaunchScreen.storyboard */,
+				1AF434001C43EB090011764B /* Info.plist */,
+				1A7741891C8DDCE7000A1B53 /* hellonature-Bridging-Header.h */,
+			);
+			path = hellonature;
+			sourceTree = "<group>";
+		};
+		657A82419289470D1521D2A6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1A7741981C8DE0D3000A1B53 /* SystemConfiguration.framework */,
+				1A7741961C8DE09D000A1B53 /* AVFoundation.framework */,
+				1A7741941C8DE035000A1B53 /* ImageIO.framework */,
+				1A7741921C8DDFFC000A1B53 /* CoreImage.framework */,
+				1A7741901C8DDFBA000A1B53 /* libstdc++.tbd */,
+				1A77418E1C8DDFAA000A1B53 /* libz.tbd */,
+				1A7741871C8DD9B4000A1B53 /* Pushwoosh.framework */,
+				ACCE1D566CD33E41AA295DEC /* Pods.framework */,
+				9519B2F46D713EE3892C05A9 /* Pods_hellonature.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6D0029841288E258A1A16A43 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				6E8FC14A95747B35DAE77193 /* Pods-hellonature.debug.xcconfig */,
+				8904936A67EFD87DF5B4B442 /* Pods-hellonature.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1AF433F01C43EB090011764B /* hellonature */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1AF434031C43EB090011764B /* Build configuration list for PBXNativeTarget "hellonature" */;
+			buildPhases = (
+				3074954D663DBA5EFBA07A6F /* 📦 Check Pods Manifest.lock */,
+				1AF433ED1C43EB090011764B /* Sources */,
+				1AF433EE1C43EB090011764B /* Frameworks */,
+				1AF433EF1C43EB090011764B /* Resources */,
+				9D302F1D57C2458A8AFA0864 /* 📦 Embed Pods Frameworks */,
+				44052373B4758372335FFC22 /* 📦 Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = hellonature;
+			productName = hellonature;
+			productReference = 1AF433F11C43EB090011764B /* hellonature.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1AF433E91C43EB090011764B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0720;
+				LastUpgradeCheck = 0720;
+				TargetAttributes = {
+					1AF433F01C43EB090011764B = {
+						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = F288LP4869;
+					};
+				};
+			};
+			buildConfigurationList = 1AF433EC1C43EB090011764B /* Build configuration list for PBXProject "hellonature" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1AF433E81C43EB090011764B;
+			productRefGroup = 1AF433F21C43EB090011764B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1AF433F01C43EB090011764B /* hellonature */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1AF433EF1C43EB090011764B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AF433FF1C43EB090011764B /* LaunchScreen.storyboard in Resources */,
+				1AF433FC1C43EB090011764B /* Assets.xcassets in Resources */,
+				1AF433FA1C43EB090011764B /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3074954D663DBA5EFBA07A6F /* 📦 Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		44052373B4758372335FFC22 /* 📦 Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-hellonature/Pods-hellonature-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9D302F1D57C2458A8AFA0864 /* 📦 Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-hellonature/Pods-hellonature-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1AF433ED1C43EB090011764B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AF433F71C43EB090011764B /* ViewController.swift in Sources */,
+				1AF433F51C43EB090011764B /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		1AF433F81C43EB090011764B /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1AF433F91C43EB090011764B /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		1AF433FD1C43EB090011764B /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1AF433FE1C43EB090011764B /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		1AF434011C43EB090011764B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1AF434021C43EB090011764B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		1AF434041C43EB090011764B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6E8FC14A95747B35DAE77193 /* Pods-hellonature.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = hellonature/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)";
+				PRODUCT_BUNDLE_IDENTIFIER = net.hellonature.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "hellonature/hellonature-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1AF434051C43EB090011764B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8904936A67EFD87DF5B4B442 /* Pods-hellonature.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = hellonature/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)";
+				PRODUCT_BUNDLE_IDENTIFIER = net.hellonature.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "6e5d1d4e-4153-43ae-b6f2-2c0445b20077";
+				SWIFT_OBJC_BRIDGING_HEADER = "hellonature/hellonature-Bridging-Header.h";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1AF433EC1C43EB090011764B /* Build configuration list for PBXProject "hellonature" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AF434011C43EB090011764B /* Debug */,
+				1AF434021C43EB090011764B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AF434031C43EB090011764B /* Build configuration list for PBXNativeTarget "hellonature" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AF434041C43EB090011764B /* Debug */,
+				1AF434051C43EB090011764B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1AF433E91C43EB090011764B /* Project object */;
+}
