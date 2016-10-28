@@ -113,6 +113,21 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.presentViewController(alertController, animated: true, completion: {});
     }
     
+    func webView(webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: (Bool) -> Void) {
+        
+        let alertController = UIAlertController(title: nil, message: message, preferredStyle: .ActionSheet)
+        
+        alertController.addAction(UIAlertAction(title: "확인", style: .Default, handler: { (action) in
+            completionHandler(true)
+        }))
+        
+        alertController.addAction(UIAlertAction(title: "취소", style: .Default, handler: { (action) in
+            completionHandler(false)
+        }))
+        
+        self.presentViewController(alertController, animated: true, completion: nil)
+    }
+    
 //    func webView(webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
 ////        print("DIDSTART \(webView.URL)")
 //    }

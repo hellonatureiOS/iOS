@@ -20,6 +20,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PushNotificationDelegate 
         PushNotificationManager.pushManager().sendAppOpen()
         PushNotificationManager.pushManager().registerForPushNotifications()
         
+        NSHTTPCookieStorage.sharedHTTPCookieStorage().cookieAcceptPolicy = NSHTTPCookieAcceptPolicy.Always
+        
         
 //        NSThread sleepForTimeInterval:5.0]
         
