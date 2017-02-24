@@ -138,6 +138,7 @@
 				9D302F1D57C2458A8AFA0864 /* [CP] Embed Pods Frameworks */,
 				44052373B4758372335FFC22 /* [CP] Copy Pods Resources */,
 				6A670C3D1E5FCABC009C2027 /* ShellScript */,
+				6A705C3D1E5FFA6C00EA730E /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -252,6 +253,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "buildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\")\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"";
+		};
+		6A705C3D1E5FFA6C00EA730E /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/bash -e\n\n#\n# package-ipa.sh\n#\n# Bundles an iOS app correctly, using the same directory structure that Xcode does when using the export functionality.\n#\n\nxcarchive=\"$1\"\noutput_ipa=\"$2\"\nbuild_dir=$(mktemp -d '/tmp/package-ipa.XXXXXX')\necho \"build_dir: $build_dir\"\n\nif [ ! -d \"${xcarchive}\" ]; then\necho \"Usage: package-ipa.sh /path/to/app.xcarchive /path/to/ouput.ipa\"\nexit 1\nfi\n\necho \"Packaging ${xcarchive} into ${output_ipa}\"\n\nif [ -f \"${output_ipa}\" ]; then\nrm \"${output_ipa}\"\nfi\n\n# if [ -d \"${build_dir}\" ]; then\n# \trm -rf \"${build_dir}\"\n# fi\n\necho \"Preparing folder tree for IPA\"\nmkdir -p \"${build_dir}/Payload\"\n\n# Copy .app into Payload dir\npushd \"${xcarchive}/Products/Applications\" > /dev/null\nls -l\ncp -Rp ./*.app \"${build_dir}/Payload\"\n         popd > /dev/null\n         \n         # Check for and copy swift libraries\n         if [ -d \"${xcarchive}/SwiftSupport\" ]; then\n         echo \"Adding Swift support dylibs\"\n         cp -Rp \"${xcarchive}/SwiftSupport\" \"${build_dir}/\"\n         fi\n         \n         # Check for and copy WatchKit file\n         if [ -d \"${xcarchive}/WatchKitSupport\" ]; then\n         echo \"Adding WatchKit support file\"\n         cp -Rp \"${xcarchive}/WatchKitSupport\" \"${build_dir}/\"\n         fi\n         \n         echo \"Zipping\"\n         pushd \"${build_dir}\" > /dev/null\n         zip --symlinks --verbose --recurse-paths \"${output_ipa}\" .\n         popd > /dev/null\n         \n         rm -rf \"${build_dir}\"\n         echo \"Created ${output_ipa}\"";
 		};
 		9D302F1D57C2458A8AFA0864 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
