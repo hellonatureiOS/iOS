@@ -7,7 +7,7 @@ configuration="Release"
 archive_path="${name}.xcarchive"
 ipa_path="${name}.ipa"
 # make sure that this provisioning profile and its key are in the machine keychain
-provisioning_profile="XC_iOS_nethellonatureios.mobileprovision"
+provisioning_profile="iOS Distribution"
 
 # remove any previous artifact, or xcodebuild will not proceed
 rm -rf $archive_path

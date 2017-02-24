@@ -11,14 +11,14 @@
 		<key>CFBundleShortVersionString</key>
 		<string>1.6.0</string>
 		<key>CFBundleVersion</key>
-		<string>25</string>
+		<string>31</string>
 		<key>SigningIdentity</key>
-		<string>iPhone Distribution: Hellonature (F288LP4869)</string>
+		<string>iPhone Developer: Seung Han Kang (9WEWG77S8V)</string>
 	</dict>
 	<key>ArchiveVersion</key>
 	<integer>2</integer>
 	<key>CreationDate</key>
-	<date>2017-02-24T06:33:48Z</date>
+	<date>2017-02-24T07:23:49Z</date>
 	<key>Name</key>
 	<string>hellonature</string>
 	<key>SchemeName</key>
