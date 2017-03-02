@@ -23,6 +23,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     var splashDidStop: Bool = false
     var webviewLoaed:Bool = false
     var deviceToken: String = ""
+    var currentMode: String = "splash"
     var statusBarHidden = true
     
     override func viewDidLoad() {
@@ -216,32 +217,38 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
      */
     
     func showLaunchScreen(){
+        if self.currentMode == "splash" {
+            let gifManager = SwiftyGifManager(memoryLimit: 20)
+            let gifImage = UIImage(gifName: "intro")
         
-        let gifManager = SwiftyGifManager(memoryLimit: 20)
-        let gifImage = UIImage(gifName: "intro")
-        
-        self.splashScreen = UIImageView(gifImage: gifImage, manager: gifManager, loopCount: 1)
-        self.splashScreen.frame = CGRect(x: 0, y: 0, width: 300, height: 300)
-        self.splashScreen.center = self.view.center
-        self.splashScreen.contentMode = UIViewContentMode.scaleAspectFit
-        self.splashScreen.delegate = self
-        self.splashBackground = UIImageView(frame: self.view.frame)
-        self.splashBackground.backgroundColor = UIColor(red: 0.11, green: 0.25, blue: 0.13, alpha:1.0)
-        self.view.addSubview(splashBackground)
-        self.view.addSubview(self.splashScreen)
+            self.splashScreen = UIImageView(gifImage: gifImage, manager: gifManager, loopCount: 1)
+            self.splashScreen.frame = CGRect(x: 0, y: 0, width: 300, height: 300)
+            self.splashScreen.center = self.view.center
+            self.splashScreen.contentMode = UIViewContentMode.scaleAspectFit
+            self.splashScreen.delegate = self
+            self.splashBackground = UIImageView(frame: self.view.frame)
+            self.splashBackground.backgroundColor = UIColor(red: 0.11, green: 0.25, blue: 0.13, alpha:1.0)
+            self.view.addSubview(splashBackground)
+            self.view.addSubview(self.splashScreen)
+        }
     }
     
     func removeSplashScreen(){
-        UIView.animate(withDuration: 0.5, animations: {
-            self.splashScreen.alpha = 0
-            self.splashBackground.alpha = 0
-            self.webView.alpha = 1
-        }, completion: { finished in
-            self.splashBackground.removeFromSuperview()
-            self.splashScreen.removeFromSuperview()
-            self.statusBarHidden = false
-            self.setNeedsStatusBarAppearanceUpdate()
-        })
+        print("###############\(self.currentMode)")
+        if self.currentMode == "splash"{
+            
+            UIView.animate(withDuration: 0.5, animations: {
+                self.splashScreen.alpha = 0
+                self.splashBackground.alpha = 0
+                self.webView.alpha = 1
+            }, completion: { finished in
+                self.splashBackground.removeFromSuperview()
+                self.splashScreen.removeFromSuperview()
+                self.statusBarHidden = false
+                self.setNeedsStatusBarAppearanceUpdate()
+                self.currentMode = "main"
+            })
+        }
     }
     
     override var prefersStatusBarHidden: Bool{

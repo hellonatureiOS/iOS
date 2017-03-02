@@ -418,8 +418,9 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.hellonature.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "7f6231d8-d64b-45f1-bbb1-a1241f3e4f52";
-				PROVISIONING_PROFILE_SPECIFIER = "XC iOS Ad Hoc: net.hellonature.ios";
+				PROVISIONING_PROFILE = "6de6e058-51ef-4361-843f-49d76b861da7";
+				PROVISIONING_PROFILE_SPECIFIER = "XC iOS: net.hellonature.ios";
+				SWIFT_INCLUDE_PATHS = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
@@ -450,9 +451,11 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.hellonature.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "7f6231d8-d64b-45f1-bbb1-a1241f3e4f52";
-				PROVISIONING_PROFILE_SPECIFIER = "XC iOS Ad Hoc: net.hellonature.ios";
+				PROVISIONING_PROFILE = "6de6e058-51ef-4361-843f-49d76b861da7";
+				PROVISIONING_PROFILE_SPECIFIER = "XC iOS: net.hellonature.ios";
+				SWIFT_INCLUDE_PATHS = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;

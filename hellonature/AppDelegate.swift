@@ -99,7 +99,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let deviceTokenString = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
         print("========================> didRegisterForRemoteNotificationsWithDeviceToken token as NSData: \(deviceToken as NSData)")
         print("========================> didRegisterForRemoteNotificationsWithDeviceToken deviceTokenString: \(deviceTokenString)")
-        FIRInstanceID.instanceID().setAPNSToken(deviceToken, type: FIRInstanceIDAPNSTokenType.sandbox)
+        FIRInstanceID.instanceID().setAPNSToken(deviceToken, type: FIRInstanceIDAPNSTokenType.prod)
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
