@@ -50,9 +50,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView = WKWebView(frame: CGRect(x: 0, y: 24, width: self.view.frame.width, height: self.view.frame.height-24), configuration: config)
 
         if urlString == nil {
-            urlString = "http://www.hellonature.net/mobile_shop/?UserScreen=iphone_app&hwid=" + deviceToken
+            urlString = "http://www.hellonature.net/mobile_shop"
+            urlString! += self.addURLPrameters(urlString)
         }
-        
+
         let url = URL (string: urlString!)
         let requestObj = URLRequest(url: url!);
         webView.navigationDelegate = self
@@ -173,12 +174,21 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             self.removeSplashScreen()
         }
     }
+    
+    func addURLPrameters(_ url:String) -> String{
+        let parameters:String = "UserScreen=iphone_app&hwid=" + deviceToken
+        var char:String = "?"
+        if(url.range(of: "?") != nil){
+            char = "&"
+        }
+        return char + parameters
+    }
 
     func pushReceiver(_ notification: NSNotification){
         let userInfo: JSON = notification.object as! JSON
         let startURL = userInfo["start-url"]
         if(startURL != JSON.null){
-            urlString = startURL.stringValue + "?hwid=" + deviceToken
+            urlString = startURL.stringValue + self.addURLPrameters(startURL.stringValue)
             webView.load(URLRequest(url: URL (string: urlString!)!));
         }
     }

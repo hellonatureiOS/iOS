@@ -67,13 +67,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
  
     func tokenRefreshNotification(_ notification: Notification) {
         if let refreshedToken = FIRInstanceID.instanceID().token() {
-            FIRMessaging.messaging().subscribe(toTopic: "event")
-            FIRMessaging.messaging().subscribe(toTopic: "update")
-            FIRMessaging.messaging().subscribe(toTopic: "notice")
+            FIRMessaging.messaging().subscribe(toTopic: "test")
+            registServer(refreshedToken)
             print("========================> refreshed id token: \(refreshedToken)")
         }
         
         connectToFcm()
+    }
+    
+    func registServer(_ token:String){
+        print("###################### ================>\(token)")
     }
 
     func connectToFcm() {

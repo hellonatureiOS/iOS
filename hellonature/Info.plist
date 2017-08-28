@@ -38,7 +38,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.6.0</string>
+	<string>1.7.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -51,7 +51,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>44</string>
+	<string>40</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -65,10 +65,6 @@
 	<string>파일 첨부를 위해 카메라에 접근합니다</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>파일 첨부를 위해 갤러리에 접근합니다</string>
-	<key>Pushwoosh_APPID</key>
-	<string>DD209-4260A</string>
-	<key>Pushwoosh_DEBUG</key>
-	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
