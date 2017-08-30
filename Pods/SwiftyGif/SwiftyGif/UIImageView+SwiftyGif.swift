@@ -29,14 +29,14 @@ let _animationManagerKey = malloc(4)
 let _delegateKey = malloc(4)
 
 @objc public protocol SwiftyGifDelegate {
-    @objc optional func gifDidStart()
-    @objc optional func gifDidLoop()
-    @objc optional func gifDidStop()
+    @objc optional func gifDidStart(sender: UIImageView)
+    @objc optional func gifDidLoop(sender: UIImageView)
+    @objc optional func gifDidStop(sender: UIImageView)
 }
 
 public extension UIImageView {
     
-    // PRAGMA - Inits
+    // MARK: Inits
     
     /**
      Convenience initializer. Creates a gif holder (defaulted to infinite loop).
@@ -54,7 +54,7 @@ public extension UIImageView {
      - Parameter manager: The manager to handle the gif display
      - Parameter loopCount: The number of loops we want for this gif. -1 means infinite.
      */
-    public convenience init(gifImage:UIImage, manager:SwiftyGifManager = SwiftyGifManager.defaultManager, loopCount:Int) {
+    public convenience init(gifImage: UIImage, manager: SwiftyGifManager = SwiftyGifManager.defaultManager, loopCount:Int) {
         self.init()
         setGifImage(gifImage,manager: manager, loopCount: loopCount);
     }
@@ -65,7 +65,7 @@ public extension UIImageView {
      - Parameter gifImage: The UIImage containing the gif backing data
      - Parameter manager: The manager to handle the gif display
      */
-    public func setGifImage(_ gifImage:UIImage, manager:SwiftyGifManager = SwiftyGifManager.defaultManager) {
+    public func setGifImage(_ gifImage: UIImage, manager:SwiftyGifManager = SwiftyGifManager.defaultManager) {
         setGifImage(gifImage, manager: manager, loopCount: -1)
     }
     
@@ -76,10 +76,9 @@ public extension UIImageView {
      - Parameter manager: The manager to handle the gif display
      - Parameter loopCount: The number of loops we want for this gif. -1 means infinite.
      */
-    public func setGifImage(_ gifImage:UIImage, manager:SwiftyGifManager = SwiftyGifManager.defaultManager, loopCount:Int) {
-        
-        if gifImage.imageCount < 1 {
-            self.image = UIImage(data: gifImage.imageData as Data)
+    public func setGifImage(_ gifImage: UIImage, manager: SwiftyGifManager = SwiftyGifManager.defaultManager, loopCount: Int) {
+        if let imageData = gifImage.imageData, gifImage.imageCount < 1 {
+            image = UIImage(data: imageData as Data)
             return
         }
         
@@ -90,22 +89,19 @@ public extension UIImageView {
         self.displayOrderIndex = 0
         self.cache = NSCache()
         self.haveCache = false
-        
-        if let gif = self.gifImage {
+
+        if let source = gifImage.imageSource,
+            let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil) {
+            self.currentImage = UIImage(cgImage: cgImage)
             
-            if let source = gif.imageSource {
-                self.currentImage = UIImage(cgImage: CGImageSourceCreateImageAtIndex(source, 0, nil)!)
-                
-                if !manager.containsImageView(self) {
-                    manager.addImageView(self)
-                    startDisplay()
-                    startAnimatingGif()
-                }
+            if manager.addImageView(self) {
+                startDisplay()
+                startAnimatingGif()
             }
         }
     }
 
-    // PRAGMA - Logic
+    // MARK: Logic
     
     /**
      Start displaying the gif for this UIImageView.
@@ -151,15 +147,15 @@ public extension UIImageView {
      - Parameter delta: The delsta from current frame we want
      */
     public func showFrameForIndexDelta(_ delta: Int) {
-        
+        guard let gifImage = gifImage else { return }
         var nextIndex = self.displayOrderIndex + delta
         
-        while nextIndex >= self.gifImage!.framesCount(){
-            nextIndex -= self.gifImage!.framesCount()
+        while nextIndex >= gifImage.framesCount(){
+            nextIndex -= gifImage.framesCount()
         }
         
         while nextIndex < 0 {
-            nextIndex += self.gifImage!.framesCount()
+            nextIndex += gifImage.framesCount()
         }
         
         showFrameAtIndex(nextIndex)
@@ -170,7 +166,7 @@ public extension UIImageView {
      - Parameter index: The index of frame to show
      */
     public func showFrameAtIndex(_ index: Int) {
-        self.displayOrderIndex = index
+        displayOrderIndex = index
         updateFrame()
     }
     
@@ -178,12 +174,13 @@ public extension UIImageView {
      Update cache for the current imageView.
      */
     public func updateCache() {
-        if self.animationManager.hasCache(self) && !self.haveCache {
+        guard let animationManager = animationManager else { return }
+        if animationManager.hasCache(self) && !self.haveCache {
             prepareCache()
-            self.haveCache = true
-        }else if !self.animationManager.hasCache(self) && self.haveCache {
-            self.cache.removeAllObjects()
-            self.haveCache = false
+            haveCache = true
+        }else if !animationManager.hasCache(self) && self.haveCache {
+            cache.removeAllObjects()
+            haveCache = false
         }
     }
     
@@ -192,18 +189,18 @@ public extension UIImageView {
      */
     public func updateCurrentImage() {
         
-        if self.displaying{
+        if displaying {
             updateFrame()
             updateIndex()
-            if loopCount == 0 || !isDisplayedInScreen(self)  || !self.isPlaying {
+            if loopCount == 0 || !isDisplayedInScreen(self)  || !isPlaying {
                 stopDisplay()
             }
-        }else{
-            if(isDisplayedInScreen(self) && loopCount != 0 && self.isPlaying) {
+        } else {
+            if isDisplayedInScreen(self) && loopCount != 0 && isPlaying {
                 startDisplay()
             }
             if isDiscarded(self) {
-                self.animationManager.deleteImageView(self)
+                animationManager?.deleteImageView(self)
             }
         }
     }
@@ -212,14 +209,10 @@ public extension UIImageView {
      Force update frame
      */
     fileprivate func updateFrame() {
-        if !self.haveCache {
-            self.currentImage = self.frameAtIndex(index: self.currentFrameIndex())
-        }else{
-            if let image = (cache.object(forKey: self.displayOrderIndex as AnyObject) as? UIImage) {
-                self.currentImage = image
-            }else{
-                self.currentImage = self.frameAtIndex(index: self.currentFrameIndex())
-            }//prevent case that cache is not ready
+        if haveCache, let image = cache.object(forKey: self.displayOrderIndex as AnyObject) as? UIImage {
+            currentImage = image
+        } else {
+            currentImage = frameAtIndex(index: currentFrameIndex())
         }
     }
     
@@ -227,14 +220,14 @@ public extension UIImageView {
      Get current frame index
      */
     public func currentFrameIndex() -> Int{
-        return self.displayOrderIndex
+        return displayOrderIndex
     }
 
     /**
      Get frame at specifi index
      */
     public func frameAtIndex(index: Int) -> UIImage {
-        return UIImage(cgImage: CGImageSourceCreateImageAtIndex(self.gifImage!.imageSource!,self.gifImage!.displayOrder![index],nil)!)
+        return UIImage(cgImage: CGImageSourceCreateImageAtIndex(gifImage!.imageSource!, gifImage!.displayOrder![index], nil)!)
     }
     
     /**
@@ -253,19 +246,32 @@ public extension UIImageView {
      Check if the imageView is displayed.
      - Returns : A boolean for weather the imageView is displayed
      */
+    
     public func isDisplayedInScreen(_ imageView:UIView?) ->Bool{
         if (self.isHidden) {
             return false
         }
         
         let screenRect = UIScreen.main.bounds
-        let viewRect = imageView!.convert(self.frame,to:UIApplication.shared.keyWindow)
+        let viewRect = imageView!.convert(self.bounds, to:nil)
         
         let intersectionRect = viewRect.intersection(screenRect);
         if (intersectionRect.isEmpty || intersectionRect.isNull) {
             return false
         }
         return (self.window != nil)
+    }
+    
+    public func clear() {
+        if let gifImage = gifImage {
+            gifImage.clear()
+            
+        }
+        gifImage = nil
+        currentImage = nil
+        cache.removeAllObjects()
+        animationManager = nil
+        image = nil
     }
     
     /**
@@ -281,7 +287,7 @@ public extension UIImageView {
                     if self.loopCount > 0 {
                         self.loopCount -= 1
                     }
-                    self.delegate?.gifDidLoop?()
+                    self.delegate?.gifDidLoop?(sender: self)
                 }
             }
         }
@@ -291,7 +297,7 @@ public extension UIImageView {
      Prepare the cache by adding every images of the gif to an NSCache object.
      */
     fileprivate func prepareCache() {
-        self.cache.removeAllObjects()
+        cache.removeAllObjects()
         
         if let gif = self.gifImage {
             for i in 0 ..< gif.displayOrder!.count {
@@ -302,18 +308,30 @@ public extension UIImageView {
     }
     
     // PRAGMA - get / set associated values
-    
+
+    fileprivate func value<T>(_ key:UnsafeMutableRawPointer?, _ defaultValue:T) -> T {
+        return (objc_getAssociatedObject(self, key) as? T) ?? defaultValue
+    }
+
+    fileprivate func possiblyNil<T>(_ key:UnsafeMutableRawPointer?) -> T? {
+        let result = objc_getAssociatedObject(self, key)
+        if result == nil {
+            return nil
+        }
+        return (result as! T)
+    }
+
     public var gifImage: UIImage? {
         get {
-            return (objc_getAssociatedObject(self, _gifImageKey) as! UIImage?)
+            return possiblyNil(_gifImageKey)
         }
         set {
             objc_setAssociatedObject(self, _gifImageKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN);
         }
     }
-    public var currentImage: UIImage {
+    public var currentImage: UIImage? {
         get {
-            return (objc_getAssociatedObject(self, _currentImageKey) as! UIImage)
+            return possiblyNil(_currentImageKey)
         }
         set {
             objc_setAssociatedObject(self, _currentImageKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN);
@@ -322,7 +340,7 @@ public extension UIImageView {
     
     fileprivate var displayOrderIndex: Int {
         get {
-            return (objc_getAssociatedObject(self, _displayOrderIndexKey) as! Int)
+            return value(_displayOrderIndexKey, 0)
         }
         set {
             objc_setAssociatedObject(self, _displayOrderIndexKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN);
@@ -331,7 +349,7 @@ public extension UIImageView {
     
     fileprivate var syncFactor: Int {
         get {
-            return (objc_getAssociatedObject(self, _syncFactorKey) as! Int)
+            return value(_syncFactorKey, 0)
         }
         set {
             objc_setAssociatedObject(self, _syncFactorKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN);
@@ -340,16 +358,16 @@ public extension UIImageView {
     
     public var loopCount: Int {
         get {
-            return (objc_getAssociatedObject(self, _loopCountKey) as! Int)
+            return value(_loopCountKey, 0)
         }
         set {
             objc_setAssociatedObject(self, _loopCountKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN);
         }
     }
     
-    public var animationManager: SwiftyGifManager {
+    public var animationManager: SwiftyGifManager? {
         get {
-            return (objc_getAssociatedObject(self, _animationManagerKey) as! SwiftyGifManager)
+            return (objc_getAssociatedObject(self, _animationManagerKey) as? SwiftyGifManager)
         }
         set {
             objc_setAssociatedObject(self, _animationManagerKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN);
@@ -361,13 +379,13 @@ public extension UIImageView {
             return (objc_getAssociatedObject(self, _delegateKey) as! SwiftyGifDelegate?)
         }
         set {
-            objc_setAssociatedObject(self, _delegateKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN);
+            objc_setAssociatedObject(self, _delegateKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_ASSIGN);
         }
     }
     
     fileprivate var haveCache: Bool {
         get {
-            return (objc_getAssociatedObject(self, _haveCacheKey) as! Bool)
+            return value(_haveCacheKey, false)
         }
         set {
             objc_setAssociatedObject(self, _haveCacheKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN);
@@ -376,7 +394,7 @@ public extension UIImageView {
     
     public var displaying: Bool {
         get {
-            return (objc_getAssociatedObject(self, _displayingKey) as! Bool)
+            return value(_displayingKey, false)
         }
         set {
             objc_setAssociatedObject(self, _displayingKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN);
@@ -385,16 +403,16 @@ public extension UIImageView {
     
     fileprivate var isPlaying: Bool {
         get {
-            return (objc_getAssociatedObject(self, _isPlayingKey) as! Bool)
+            return value(_isPlayingKey, false)
         }
         set {
             
             objc_setAssociatedObject(self, _isPlayingKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN);
             
             if newValue {
-                self.delegate?.gifDidStart?()
+                self.delegate?.gifDidStart?(sender: self)
             } else {
-                self.delegate?.gifDidStop?()
+                self.delegate?.gifDidStop?(sender: self)
             }
         }
     }

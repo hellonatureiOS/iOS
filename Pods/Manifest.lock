@@ -1,20 +1,24 @@
 PODS:
-  - Firebase/Core (3.13.0):
-    - FirebaseAnalytics (= 3.7.0)
-    - FirebaseCore (= 3.5.0)
-  - Firebase/Messaging (3.13.0):
+  - Firebase/Core (4.1.0):
+    - FirebaseAnalytics (= 4.0.3)
+    - FirebaseCore (= 4.0.5)
+  - Firebase/Messaging (4.1.0):
     - Firebase/Core
-    - FirebaseMessaging (= 1.2.2)
-  - FirebaseAnalytics (3.7.0):
-    - FirebaseCore (~> 3.5)
-    - FirebaseInstanceID (~> 1.0)
+    - FirebaseMessaging (= 2.0.1)
+  - FirebaseAnalytics (4.0.3):
+    - FirebaseCore (~> 4.0)
+    - FirebaseInstanceID (~> 2.0)
     - GoogleToolboxForMac/NSData+zlib (~> 2.1)
-  - FirebaseCore (3.5.0):
+    - nanopb (~> 0.3)
+  - FirebaseCore (4.0.5):
     - GoogleToolboxForMac/NSData+zlib (~> 2.1)
-  - FirebaseInstanceID (1.0.9)
-  - FirebaseMessaging (1.2.2):
-    - FirebaseAnalytics (~> 3.7)
-    - FirebaseInstanceID (~> 1.0)
+    - nanopb (~> 0.3)
+  - FirebaseInstanceID (2.0.1):
+    - FirebaseCore (~> 4.0)
+  - FirebaseMessaging (2.0.1):
+    - FirebaseAnalytics (~> 4.0)
+    - FirebaseCore (~> 4.0)
+    - FirebaseInstanceID (~> 2.0)
     - GoogleToolboxForMac/Logger (~> 2.1)
     - Protobuf (~> 3.1)
   - GoogleToolboxForMac/Defines (2.1.1)
@@ -22,8 +26,13 @@ PODS:
     - GoogleToolboxForMac/Defines (= 2.1.1)
   - GoogleToolboxForMac/NSData+zlib (2.1.1):
     - GoogleToolboxForMac/Defines (= 2.1.1)
-  - Protobuf (3.2.0)
-  - SwiftyGif (3.0.0)
+  - nanopb (0.3.8):
+    - nanopb/decode (= 0.3.8)
+    - nanopb/encode (= 0.3.8)
+  - nanopb/decode (0.3.8)
+  - nanopb/encode (0.3.8)
+  - Protobuf (3.4.0)
+  - SwiftyGif (3.1.0)
   - SwiftyJSON (3.1.4)
 
 DEPENDENCIES:
@@ -33,16 +42,17 @@ DEPENDENCIES:
   - SwiftyJSON
 
 SPEC CHECKSUMS:
-  Firebase: 5bc34d7b5ff5792e3386c8b28dc6265deeab0da4
-  FirebaseAnalytics: 0d1b7d81d5021155be37702a94ba1ec16d45365d
-  FirebaseCore: 1c0a13bf59bb95cdd19577252499f0ec6a03e999
-  FirebaseInstanceID: 2d0518b1378fe9d685ef40cbdd63d2fdc1125339
-  FirebaseMessaging: df8267f378580a24174ce7861233aa11d5c90109
+  Firebase: ebebf41db7f10e0c7668b6eaaa857fbe599aa478
+  FirebaseAnalytics: 76f754d37ca5b04f36856729b6af3ca0152d1069
+  FirebaseCore: 7d876ea97a830cbe62ba7fbbe7670c833a324ba0
+  FirebaseInstanceID: 0500e3cb54a1a4e01a8cffcc09323b8bb8fc7e1e
+  FirebaseMessaging: b45ff9ef5d932600d3f78ff43168e7c5707aa7dc
   GoogleToolboxForMac: 8e329f1b599f2512c6b10676d45736bcc2cbbeb0
-  Protobuf: 745f59e122e5de98d4d7ef291e264a0eef80f58e
-  SwiftyGif: d6b4d63de2a2a5134d8b54ba5719837319d77ef0
+  nanopb: 5601e6bca2dbf1ed831b519092ec110f66982ca3
+  Protobuf: 03eef2ee0b674770735cf79d9c4d3659cf6908e8
+  SwiftyGif: aad44b7ef0ad1d599ba83d7aa5759e916b520c42
   SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
 
-PODFILE CHECKSUM: fe827a05ecf0ddba7791af9b7a95bb2d9276feea
+PODFILE CHECKSUM: e9d761fafbe03a4f8adcddb76cead9d2a20f3d9b
 
-COCOAPODS: 1.2.0
+COCOAPODS: 1.3.1
