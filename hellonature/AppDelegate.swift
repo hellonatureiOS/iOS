@@ -17,8 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     var window: UIWindow?
     let gcmMessageIDKey = "gcm.message_id"
     let topic = "/topics/test"
-    
-    
+
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         debugPrint("##############################> @1 AppDelegate DidFinishLaunchingWithOptions")
         if #available(iOS 10.0, *) {
@@ -27,19 +27,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         self.registerForPushNotifications()
         return true
     }
-    
-    
-//    func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData)
-//    {
-//        debugPrint("##############################> @2 didRegisterForRemoteNotificationsWithDeviceToken: NSDATA")
-//        
-//        let token = String(format: "%@", deviceToken as CVarArg)
-//        Messaging.messaging().apnsToken = deviceToken as Data
-//        debugPrint("##############################> @3 deviceToken: \(token)")
-//        debugPrint("##############################> Firebase Token:",InstanceID.instanceID().token() as Any)
-//    }
-    
-    
+
+
+
     // 알림 등록성공
     func application(_ application: UIApplication, didRegister notificationSettings: UIUserNotificationSettings)
     {
@@ -49,8 +39,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             application.registerForRemoteNotifications()
         }
     }
-    
-    
+
+
     // 앱이 백그라운드에서 알림 메시지를받는 경우,
     // 이 콜백은 사용자가 응용 프로그램을 시작하는 알림을 누를 때까지 발생하지 않습니다.
     // TODO : 알림 데이터를 처리합니다.
@@ -62,7 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             debugPrint("##############################> Message ID: \(messageID)")
         }
     }
-    
+
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let messageID = userInfo[gcmMessageIDKey] {
             debugPrint("##############################> @7-2 userInfo: \(userInfo)")
@@ -71,12 +61,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             completionHandler(UIBackgroundFetchResult.newData)
         }
     }
-    
+
     // 알림 등록실패
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error){
         debugPrint("##############################> @7-3 didFailToRegisterForRemoteNotificationsWithError: \(error)")
     }
-    
+
     // 디바이스토큰 등록완료 후 호출
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data)
     {
@@ -86,27 +76,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         debugPrint("##############################> deviceToken: \(token)")
         debugPrint("Firebase Token:",InstanceID.instanceID().token() as Any)
     }
-    
-    
+
+
     func application(received remoteMessage: MessagingRemoteMessage)
     {
         debugPrint("##############################> @8 remoteMessage:\(remoteMessage.appData)")
     }
-    
+
     // 앱 비활성화
     func applicationDidEnterBackground(_ application: UIApplication) {
         Messaging.messaging().shouldEstablishDirectChannel = false
         debugPrint("##############################> @9 AppDelegate DidEnterBackground")
     }
-    
+
     // 앱 활성화
     func applicationDidBecomeActive(_ application: UIApplication) {
         Messaging.messaging().shouldEstablishDirectChannel = true
-        
+
 //        application.applicationIconBadgeNumber = 0
         debugPrint("##############################> @10 AppDelegate DidBecomeActive")
     }
-    
+
     // FCM 초기화
     func registerForPushNotifications()
     {
@@ -135,14 +125,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             let setting = UIUserNotificationSettings(types: type, categories: nil);
             UIApplication.shared.registerUserNotificationSettings(setting);
         }
-        
+
         FirebaseApp.configure()
         Messaging.messaging().delegate = self
         Messaging.messaging().shouldEstablishDirectChannel = true
         UIApplication.shared.registerForRemoteNotifications();
 //        NotificationCenter.default.addObserver(self, selector: #selector(self.tokenRefreshNotificaiton), name: Notification.Name("NotificationIdentifier"), object: nil)
     }
-    
+
     func tokenRefreshNotificaiton(_ notification: Foundation.Notification)
     {
         if let refreshedToken = InstanceID.instanceID().token()
@@ -151,7 +141,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
-    // FCM이 새로운 FCM 토큰을받을 때마다 호출
+    // FCM이 새로운 FCM 토큰을 받을 때마다 호출
     // 알림허용 주제를 설정
     ///이 토큰을 응용 프로그램 서버에 알림을 보낼 수 있습니다.
     func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String)
@@ -160,7 +150,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         debugPrint("##############################> @15 messaging:\(messaging)")
         debugPrint("##############################> didRefreshRegistrationToken:\(fcmToken)")
     }
-    
+
     @available(iOS 10.0, *)
     public func messaging(_ messaging: Messaging, didReceive remoteMessage: MessagingRemoteMessage)
     {
@@ -171,7 +161,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             let prettyPrinted = String(data: data, encoding: .utf8) else { return }
         print("##############################> Received direct channel message:\n\(prettyPrinted)")
     }
-    
+
     //앱이 활성화상태에서 알림 수신시 호출
     @available(iOS 10.0, *)
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void)
@@ -184,7 +174,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         //수신완료
         completionHandler([.alert, .sound])
     }
-    
+
     //앱이 비활성화 상태 알림메세지 탭 동작시 호출
     @available(iOS 10.0, *)
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void)
@@ -219,4 +209,3 @@ extension MessagingDelegate {
     }
     // [END ios_10_data_message]
 }
-
