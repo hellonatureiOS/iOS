@@ -168,7 +168,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     {
         let userInfo = notification.request.content.userInfo
         //알림 처리
-        debugPrint("##############################> @17 willPresent notification")
         debugPrint("##############################> @17 notification: \(notification)")
         debugPrint("##############################> @17 userInfo: \(userInfo)")
         //수신완료
