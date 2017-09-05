@@ -1,8 +1,5 @@
 //
-//  TosController.swift
-//  getcha
-//
-//  Updated by jeenoo on 2017. 02. 21..
+//  Updated by team hn.dev on 2017. 02. 21..
 //  Copyright (c) 2017 Hellonature. All rights reserved.
 //
 import UIKit
@@ -15,65 +12,56 @@ import SwiftyGif
 
 
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler{
-//    var webView: UIWebView!
+
     var webView: WKWebView!
-    var urlString: String!
+    var urlString: String = "http://www.hellonature.net/mobile_shop"
     var splashScreen: UIImageView!
     var splashBackground: UIView!
     var splashDidStop: Bool = false
     var webviewLoaed:Bool = false
-    var deviceToken: String = ""
     var currentMode: String = "splash"
     var statusBarHidden = true
     
-    @IBAction func handleLogTokenTouch(_ sender: UIButton) {
-        // [START log_fcm_reg_token]
-        let token = Messaging.messaging().fcmToken
-        print("FCM token: \(token ?? "")")
-        // [END log_fcm_reg_token]
-    }
-    
-    @IBAction func handleSubscribeTouch(_ sender: UIButton) {
-        // [START subscribe_topic]
-        Messaging.messaging().subscribe(toTopic: "/topics/test")
-        print("Subscribed to news topic")
-        // [END subscribe_topic]
-    }
-
-    
+    // 뷰컨트롤러 시작
     override func viewDidLoad() {
         super.viewDidLoad()
-        let contentController = WKUserContentController()
-        contentController.add(self, name: "callbackHandler")
-        
-        let config = WKWebViewConfiguration()
-        config.userContentController = contentController
-        
-        webView = WKWebView(frame: CGRect(x: 0, y: 24, width: self.view.frame.width, height: self.view.frame.height-24), configuration: config)
-
-        if urlString == nil {
-            urlString = "http://www.hellonature.net/mobile_shop"
-            urlString! += self.addURLPrameters(urlString)
-        }
-
-        let url = URL (string: urlString!)
-        let requestObj = URLRequest(url: url!);
-        webView.navigationDelegate = self
-        webView.uiDelegate = self
-        webView.load(requestObj)
-        print("webView load")
-
-
-
-        self.view.addSubview(webView)
+        self.createWebview()
+        self.startWebview()
         self.showLaunchScreen()
     }
     
+    // 웹뷰 초기설정 및 만들기
+    func createWebview(){
+        let config = WKWebViewConfiguration()
+        config.userContentController = self.createWebviewController()
+        webView = WKWebView(frame: CGRect(x: 0, y: 24, width: self.view.frame.width, height: self.view.frame.height-24), configuration: config)
+        webView.navigationDelegate = self
+        webView.uiDelegate = self
+        self.view.addSubview(webView)
+    }
+    
+    // 웹뷰 컨트롤러 만들기
+    func createWebviewController() -> WKUserContentController{
+        let contentController = WKUserContentController()
+        contentController.add(self, name: "callbackHandler")
+        return contentController
+    }
+    
+    // 웹뷰의 시작 페이지 불러오기
+    func startWebview(){
+        urlString += self.addURLPrameters(urlString)
+        let url = URL (string: urlString)
+        let requestObj = URLRequest(url: url!);
+        webView.load(requestObj)
+    }
+    
+    // 웹뷰 컨트롤러
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if(message.name == "callbackHandler") {
             print("JavaScript is sending a message \(NSString(string: message.body as! String))")
         }
     }
+    
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if webView != self.webView {
@@ -138,9 +126,13 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
     }
     
-    //웹주소에 디바이스 정보추가
+    // 웹주소에 디바이스 정보추가
     func addURLPrameters(_ url:String) -> String{
-        let parameters:String = "UserScreen=iphone_app&hwid=" + deviceToken
+        let deviceToken = InstanceID.instanceID().token()
+        var parameters:String = "UserScreen=iphone_app&hwid="
+        if deviceToken != nil {
+            parameters += deviceToken!
+        }
         var char:String = "?"
         if(url.range(of: "?") != nil){
             char = "&"
@@ -148,17 +140,18 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return char + parameters
     }
     
-    //푸시메세지에서 파라미터 가져오기
+    // 푸시메세지에서 파라미터 가져오기
     func pushReceiver(_ notification: NSNotification){
         let userInfo: JSON = notification.object as! JSON
         let startURL = userInfo["start-url"]
+        debugPrint("##############################> @17 \(userInfo)")
         if(startURL != JSON.null){
             urlString = startURL.stringValue + self.addURLPrameters(startURL.stringValue)
-            webView.load(URLRequest(url: URL (string: urlString!)!));
+            webView.load(URLRequest(url: URL (string: urlString)!));
         }
     }
     
-    //Gif 인트로화면 만들기
+    // Gif 인트로화면 만들기
     func showLaunchScreen(){
         if self.currentMode == "splash" {
             let gifManager = SwiftyGifManager(memoryLimit: 20)
@@ -176,10 +169,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
     }
     
-    //Gif 인트로 화면제거
+    // Gif 인트로 화면제거
     func removeSplashScreen(){
         if self.currentMode == "splash"{
-            
+        
             UIView.animate(withDuration: 0.5, animations: {
                 self.splashScreen.alpha = 0
                 self.splashBackground.alpha = 0
@@ -195,20 +188,22 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     
-    //웹뷰 비활성화 될때
+    // 웹뷰 활성화 될때
     override func viewWillAppear(_ animated: Bool) {
         self.statusBarHidden = true
-        NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: NSNotification.Name(rawValue: "aps"), object: nil)
+//        debugPrint("##############################> \(Messaging.messaging().)")
+        
+//        NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: NSNotification.Name(rawValue: "aps"), object: nil)
     }
     
-    //웹뷰 활성화 될때
+    // 웹뷰 비활성화 될때
     override func viewWillDisappear(_ animated: Bool) {
         self.showLaunchScreen()
-        NotificationCenter.default.removeObserver(self)
+//        NotificationCenter.default.removeObserver(self)
     }
     
     
-    //상태바 숨기기
+    // 상태바 숨기기
     override var prefersStatusBarHidden: Bool{
         return self.statusBarHidden
     }
