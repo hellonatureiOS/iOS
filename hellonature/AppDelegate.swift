@@ -24,6 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             UNUserNotificationCenter.current().delegate = self
         }
         self.registerForPushNotifications()
+        self.window!.rootViewController?.view.backgroundColor = UIColor.white
         return true
     }
 
@@ -210,3 +211,5 @@ extension MessagingDelegate {
         print("@18 Received data message: \(remoteMessage.appData)")
     }
 }
+
+

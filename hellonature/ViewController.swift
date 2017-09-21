@@ -11,62 +11,88 @@ import FirebaseMessaging
 import SwiftyGif
 
 
-let SCREEN_MODE:String = "loading";
 let SITE_DOMAIN:String = "http://www.hellonature.net/mobile_shop/"
 let SITE_PARAMETER:String = "UserScreen=iphone_app&hwid="
+let SITE_BANNER:String = "http://www.hellonature.net/mobile_dev/app/index.html"
+let LOADED_APP_BANNER:String = "loaded app banner"
+let CLOSE_APP_BANNER:String = "close app banner"
 
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler{
     
     var webView: WKWebView!
-    var splashScreen: UIImageView!
-    var splashBackground: UIView!
-    var splashDidStop: Bool = false
-    
-//    var webviewLoaed:Bool = false
-//    var currentMode: String = "splash"
-    var statusBarHidden = true
+    var banner: WKWebView!
+    var navigated:Bool = false
+    var showStatusBar:Bool = false
     
     /** 뷰컨트롤러 시작 **/
     override func viewDidLoad() {
+ 
         super.viewDidLoad()
         self.createWebview()
-        self.startWebview()
-//        self.showLaunchScreen()
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
     }
     
-    /** 웹뷰 초기설정 및 만들기 **/
+    
     func createWebview(){
         let config = WKWebViewConfiguration()
         config.userContentController = self.createWebviewController()
+        self.createMainview(config: config)
+        self.createBannerview(config: config)
+        self.startWebview()
+    }
+    
+    /** 기본 웹뷰 초기설정 및 만들기 **/
+    func createMainview(config: WKWebViewConfiguration){
         webView = WKWebView(frame: CGRect(x: 0, y: 24, width: self.view.frame.width, height: self.view.frame.height-24), configuration: config)
         webView.navigationDelegate = self
         webView.uiDelegate = self
         self.view.addSubview(webView)
     }
     
+    /** 배너뷰 초기설정 및 만들기 **/
+    func createBannerview(config: WKWebViewConfiguration){
+        banner = WKWebView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height), configuration: config)
+        banner.navigationDelegate = self
+        banner.uiDelegate = self
+        banner.scrollView.isScrollEnabled = false
+        banner.scrollView.bounces = false
+        banner.backgroundColor = UIColor(rgb: 0x1C3F21)
+        banner.load(URLRequest(url: URL(string: SITE_BANNER)!))
+        self.view.addSubview(banner)
+    }
+    
     /** 웹뷰 컨트롤러 만들기 **/
     func createWebviewController() -> WKUserContentController{
+        let js = "javascript: localStorage.setItem('key', 'value')";
+        let userScript = WKUserScript(source: js, injectionTime: WKUserScriptInjectionTime.atDocumentStart, forMainFrameOnly: false);
         let contentController = WKUserContentController()
         contentController.add(self, name: "callbackHandler")
+        contentController.addUserScript(userScript)
         return contentController
     }
     
-    /** 웹뷰의 시작 페이지 불러오기 **/
+    /** 기본 웹뷰의 시작 페이지 불러오기 **/
     func startWebview(){
         let deviceToken = InstanceID.instanceID().token()
         let token = deviceToken == nil ? "" : deviceToken!
+        // 도메인 + 기본 URL파라미터 + 디바이스 토큰
         webView.load(URLRequest(url: URL(string: "\(SITE_DOMAIN)?\(SITE_PARAMETER)\(token)")!))
     }
     
-    /** 웹뷰 컨트롤러 **/
+    /** 배너뷰 컨트롤러 **/
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if(message.name == "callbackHandler") {
-            print("JavaScript is sending a message \(NSString(string: message.body as! String))")
+            debugPrint("JavaScript is sending a message \(NSString(string: message.body as! String))")
+            //자바스크립트에서 배너뷰 닫기 호출
+            if message.body as! String == CLOSE_APP_BANNER {
+                self.banner.removeFromSuperview()
+                showStatusBar = true
+                setNeedsStatusBarAppearanceUpdate()
+            }
         }
     }
     
-
+    /** 팝업 설정 **/
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if webView != self.webView {
             decisionHandler(.allow)
@@ -102,6 +128,14 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return nil
     }
     
+    /** 페이지 로딩 완료, webView의 페이지가 로드가 완료 & 처음 페이지 로드시에만 js함수 호출 **/
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        if webView == self.webView{
+            self.navigated = true
+            self.banner.evaluateJavaScript("appReady()")
+       }
+    }
+    
 
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
@@ -128,22 +162,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.present(alertController, animated: true, completion: nil)
     }
     
-  
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-//        webviewLoaed = true;
-        if(self.splashDidStop){
-//            self.removeSplashScreen()
-        }
-    }
-    
 
-    /** 웹주소에 디바이스 정보추가 **/
-    func addURLPrameters(_ url:String) -> String{
-        let deviceToken = InstanceID.instanceID().token()
-        return "UserScreen=iphone_app&hwid=\(deviceToken!)"
-    }
-    
-    /** FCM 메세지에서 파라미터 가져오기 **/
+    /** FCM 메세지에서 시작페이지 가져오기 **/
     func pushReceiver(_ notification: NSNotification){
         let userInfo = notification.userInfo,
             startURL = userInfo?["start-url"],
@@ -158,75 +178,57 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return deviceToken == nil ? "" : deviceToken!
     }
     
-    /** Gif 인트로화면 만들기 **/
-//    func showLaunchScreen(){
-//        if self.currentMode == "splash" {
-//            let gifManager = SwiftyGifManager(memoryLimit: 20)
-//            let gifImage = UIImage(gifName: "intro")
-//            self.splashScreen = UIImageView(gifImage: gifImage, manager: gifManager, loopCount: 3)
-//            self.splashScreen.frame = CGRect(x: 0, y: 0, width: 300, height: 300)
-//            self.splashScreen.center = self.view.center
-//            self.splashScreen.contentMode = UIViewContentMode.scaleAspectFit
-//            self.splashScreen.delegate = self
-//            self.splashBackground = UIImageView(frame: self.view.frame)
-//            self.splashBackground.backgroundColor = UIColor(red: 0.11, green: 0.25, blue: 0.13, alpha:1.0)
-//            self.view.addSubview(splashBackground)
-//            self.view.addSubview(self.splashScreen)
-//        }
-//    }
-    
-    /** Gif 인트로 화면제거 **/
-//    func removeSplashScreen(){
-//        if self.currentMode == "splash"{
-//            UIView.animate(withDuration: 0.5, animations: {
-//                self.splashScreen.alpha = 0
-//                self.splashBackground.alpha = 0
-//                self.webView.alpha = 1
-//            }, completion: { finished in
-//                self.splashBackground.removeFromSuperview()
-//                self.splashScreen.removeFromSuperview()
-//                self.statusBarHidden = false
-//                self.setNeedsStatusBarAppearanceUpdate()
-//                self.currentMode = "main"
-//            })
-//        }
-//    }
-    
     
     /** 웹뷰 활성화 될때 푸시된 데이터메세지 수신 메서드 등록하기 **/
     override func viewWillAppear(_ animated: Bool) {
-        //self.statusBarHidden = true
         
     }
     
     /** 웹뷰 비활성화 될때 **/
     override func viewWillDisappear(_ animated: Bool) {
-        //self.showLaunchScreen()
-//        NotificationCenter.default.removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
     
     /** 상태바 숨기기 **/
-    override var prefersStatusBarHidden: Bool{
-        return self.statusBarHidden
+//    override var prefersStatusBarHidden: Bool{
+//        return self.statusBarHidden
+//    }
+    
+    
+    override var prefersStatusBarHidden: Bool {
+        if showStatusBar == true {
+            //does not prefer status bar hidden
+            print("does not prefer status bar hidden")
+            return false
+            
+        } else {
+            //does prefer status bar hidden
+            print("does prefer status bar hidden")
+            return true
+            
+        }
     }
     
-    
+   
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
     
 }
 
-/** Gif 인트로 진행체크 **/
-extension ViewController : SwiftyGifDelegate {
-    func gifDidLoop(sender: UIImageView) {
-        splashDidStop = true
-//        if(self.webviewLoaed){
-//            self.removeSplashScreen()
-//        }
+extension UIColor{
+    convenience init(rgb: UInt){
+        self.init(
+            red: CGFloat((rgb & 0xFF0000) >> 16) / 255.0,
+            green: CGFloat((rgb & 0x00FF00) >> 8) / 255.0,
+            blue: CGFloat(rgb & 0x0000FF) / 255.0,
+            alpha: CGFloat(1.0)
+        )
     }
 }
+
+
 
 
 
