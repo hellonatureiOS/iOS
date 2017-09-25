@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
-    <device id="retina4_0" orientation="portrait">
+    <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -18,17 +18,26 @@
                         <viewControllerLayoutGuide type="bottom" id="xb3-aO-Qok"/>
                     </layoutGuides>
                     <view key="view" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="Ze5-6b-2t3">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="80" verticalHuggingPriority="80" image="loading.png" translatesAutoresizingMaskIntoConstraints="NO" id="Y3p-sW-BxP">
-                                <rect key="frame" x="55.5" y="182.5" width="209" height="203"/>
-                            </imageView>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="4bh-OG-ubQ">
+                                <rect key="frame" x="157" y="318" width="100" height="100"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="80" verticalHuggingPriority="80" image="loading" translatesAutoresizingMaskIntoConstraints="NO" id="Y3p-sW-BxP">
+                                        <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
+                                    </imageView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="4T6-Ix-ZQp"/>
+                                    <constraint firstAttribute="height" constant="100" id="IWQ-QE-qka"/>
+                                </constraints>
+                            </stackView>
                         </subviews>
                         <color key="backgroundColor" cyan="0.81000000000000005" magenta="0.46999999999999997" yellow="0.91000000000000003" black="0.56999999999999995" alpha="1" colorSpace="custom" customColorSpace="genericCMYKColorSpace"/>
                         <constraints>
-                            <constraint firstItem="Y3p-sW-BxP" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="04n-fR-r77"/>
-                            <constraint firstItem="Y3p-sW-BxP" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="ClF-lh-lsx"/>
+                            <constraint firstItem="4bh-OG-ubQ" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Emr-d4-vtZ"/>
+                            <constraint firstItem="4bh-OG-ubQ" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="MMY-Ga-2QW"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -38,6 +47,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="loading.png" width="209" height="203"/>
+        <image name="loading" width="209" height="203"/>
     </resources>
 </document>

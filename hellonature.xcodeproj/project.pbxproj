@@ -17,7 +17,6 @@
 		1AF433FF1C43EB090011764B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1AF433FD1C43EB090011764B /* LaunchScreen.storyboard */; };
 		6A5A441A1E2F0AF50054EADD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6A5A44191E2F0AF50054EADD /* GoogleService-Info.plist */; };
 		6A5A441C1E2F12790054EADD /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A5A441B1E2F12790054EADD /* UserNotifications.framework */; };
-		6A6C647B1F73BC27000DA806 /* loading.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A6C647A1F73BC27000DA806 /* loading.png */; };
 		6A8182821F56A886000BB126 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8182811F56A886000BB126 /* AppDelegate.swift */; };
 		6A8182841F56A99D000BB126 /* NotificationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8182831F56A99D000BB126 /* NotificationsController.swift */; };
 		6AF0736D1E4D99230082B417 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6AF0736C1E4D99230082B417 /* Assets.xcassets */; };
@@ -39,7 +38,6 @@
 		1AF434001C43EB090011764B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6A5A44191E2F0AF50054EADD /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		6A5A441B1E2F12790054EADD /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
-		6A6C647A1F73BC27000DA806 /* loading.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = loading.png; path = ../../../../../Downloads/loading.png; sourceTree = "<group>"; };
 		6A8182811F56A886000BB126 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6A8182831F56A99D000BB126 /* NotificationsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsController.swift; sourceTree = "<group>"; };
 		6AF0736C1E4D99230082B417 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -95,7 +93,6 @@
 				1AF433FD1C43EB090011764B /* LaunchScreen.storyboard */,
 				6A5A44191E2F0AF50054EADD /* GoogleService-Info.plist */,
 				1AF434001C43EB090011764B /* Info.plist */,
-				6A6C647A1F73BC27000DA806 /* loading.png */,
 				6A8182831F56A99D000BB126 /* NotificationsController.swift */,
 			);
 			path = hellonature;
@@ -162,7 +159,7 @@
 						CreatedOnToolsVersion = 7.2;
 						DevelopmentTeam = F288LP4869;
 						LastSwiftMigration = 0820;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -203,7 +200,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6A6C647B1F73BC27000DA806 /* loading.png in Resources */,
 				1AF433FF1C43EB090011764B /* LaunchScreen.storyboard in Resources */,
 				1AF433FA1C43EB090011764B /* Main.storyboard in Resources */,
 				6AF0736D1E4D99230082B417 /* Assets.xcassets in Resources */,
@@ -423,7 +419,7 @@
 				CODE_SIGN_ENTITLEMENTS = hellonature/hellonature.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = F288LP4869;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
 					"$(inherited)",
@@ -437,8 +433,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.hellonature.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE = "97d8973b-c0e0-4224-937a-161c8f329027";
+				PROVISIONING_PROFILE_SPECIFIER = jeenoo;
 				SWIFT_INCLUDE_PATHS = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -456,7 +452,7 @@
 				CODE_SIGN_ENTITLEMENTS = hellonature/hellonature.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = F288LP4869;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
 					"$(inherited)",
@@ -470,8 +466,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.hellonature.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE = "97d8973b-c0e0-4224-937a-161c8f329027";
+				PROVISIONING_PROFILE_SPECIFIER = jeenoo;
 				SWIFT_INCLUDE_PATHS = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";

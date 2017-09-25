@@ -7,7 +7,6 @@ import WebKit
 import Firebase
 import FirebaseInstanceID
 import FirebaseMessaging
-//import SwiftyJSON
 import SwiftyGif
 
 
@@ -21,7 +20,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     var webView: WKWebView!
     var banner: WKWebView!
-    var navigated:Bool = false
+    var webViewStarted:Bool = false
     var showStatusBar:Bool = false
     
     /** 뷰컨트롤러 시작 **/
@@ -59,6 +58,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         banner.backgroundColor = UIColor(rgb: 0x1C3F21)
         banner.load(URLRequest(url: URL(string: SITE_BANNER)!))
         self.view.addSubview(banner)
+        self.bannerAnimation(fadeIn: true)
     }
     
     /** 웹뷰 컨트롤러 만들기 **/
@@ -79,18 +79,19 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView.load(URLRequest(url: URL(string: "\(SITE_DOMAIN)?\(SITE_PARAMETER)\(token)")!))
     }
     
-    /** 배너뷰 컨트롤러 **/
+    /** 스크립트메시지 핸들러 **/
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if(message.name == "callbackHandler") {
             debugPrint("JavaScript is sending a message \(NSString(string: message.body as! String))")
             //자바스크립트에서 배너뷰 닫기 호출
             if message.body as! String == CLOSE_APP_BANNER {
-                self.banner.removeFromSuperview()
+                self.bannerAnimation(fadeIn: false)
                 showStatusBar = true
                 setNeedsStatusBarAppearanceUpdate()
             }
         }
     }
+    
     
     /** 팝업 설정 **/
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -130,13 +131,23 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     /** 페이지 로딩 완료, webView의 페이지가 로드가 완료 & 처음 페이지 로드시에만 js함수 호출 **/
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        if webView == self.webView{
-            self.navigated = true
-            self.banner.evaluateJavaScript("appReady()")
+        if webView == self.webView && !self.webViewStarted{
+            self.webViewStarted = true
+            self.banner.evaluateJavaScript("c")
        }
     }
     
-
+    func bannerAnimation(fadeIn:Bool){
+        UIView.animate(withDuration: 0.5, animations: {
+            self.banner.alpha = fadeIn ? 1 : 0
+        }, completion: {
+            (value: Bool) in
+            if !fadeIn{
+                self.banner.removeFromSuperview()
+            }
+        })
+    }
+    
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
         let alertController = UIAlertController(title: message, message: nil,
@@ -173,6 +184,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
     }
     
+    /** 디바이스 토큰 가져오기 **/
     func getDeviceToken() ->String{
         let deviceToken = InstanceID.instanceID().token()
         return deviceToken == nil ? "" : deviceToken!
@@ -186,31 +198,19 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     /** 웹뷰 비활성화 될때 **/
     override func viewWillDisappear(_ animated: Bool) {
-        NotificationCenter.default.removeObserver(self)
+        //NotificationCenter.default.removeObserver(self)
     }
     
-    
-    /** 상태바 숨기기 **/
-//    override var prefersStatusBarHidden: Bool{
-//        return self.statusBarHidden
-//    }
-    
-    
+    /** 상태바 숨기기 설정 **/
     override var prefersStatusBarHidden: Bool {
         if showStatusBar == true {
-            //does not prefer status bar hidden
-            print("does not prefer status bar hidden")
             return false
-            
         } else {
-            //does prefer status bar hidden
-            print("does prefer status bar hidden")
             return true
-            
         }
     }
     
-   
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
