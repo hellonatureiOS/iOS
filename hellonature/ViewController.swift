@@ -7,7 +7,6 @@ import WebKit
 import Firebase
 import FirebaseInstanceID
 import FirebaseMessaging
-import SwiftyGif
 
 
 let SITE_DOMAIN:String = "http://www.hellonature.net/mobile_shop/"
@@ -58,7 +57,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         banner.backgroundColor = UIColor(rgb: 0x1C3F21)
         banner.load(URLRequest(url: URL(string: SITE_BANNER)!))
         self.view.addSubview(banner)
-        self.bannerAnimation(fadeIn: true)
+//        self.bannerAnimation(fadeIn: true)
     }
     
     /** 웹뷰 컨트롤러 만들기 **/
@@ -76,22 +75,29 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         let deviceToken = InstanceID.instanceID().token()
         let token = deviceToken == nil ? "" : deviceToken!
         // 도메인 + 기본 URL파라미터 + 디바이스 토큰
+        debugPrint("\(SITE_DOMAIN)?\(SITE_PARAMETER)\(token)")
         webView.load(URLRequest(url: URL(string: "\(SITE_DOMAIN)?\(SITE_PARAMETER)\(token)")!))
     }
     
     /** 스크립트메시지 핸들러 **/
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if(message.name == "callbackHandler") {
-            debugPrint("JavaScript is sending a message \(NSString(string: message.body as! String))")
-            //자바스크립트에서 배너뷰 닫기 호출
-            if message.body as! String == CLOSE_APP_BANNER {
-                self.bannerAnimation(fadeIn: false)
-                showStatusBar = true
-                setNeedsStatusBarAppearanceUpdate()
+            if let body:NSDictionary = (message.body as? NSDictionary){
+                debugPrint("JavaScript is sending a message \(NSString(string: body["message"] as! NSString))")
+                //자바스크립트에서 배너뷰 닫기 호출
+                if body["message"] as! String == CLOSE_APP_BANNER {
+                    self.bannerAnimation(fadeIn: false)
+                    showStatusBar = true
+                    setNeedsStatusBarAppearanceUpdate()
+                    //배너클릭 주소로 웹뷰 이동
+                    if body["param"] != nil {
+                        webView.load(URLRequest(url: URL(string: body["param"] as! String)!))
+                    }
+                }
             }
         }
     }
-    
+
     
     /** 팝업 설정 **/
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -100,7 +106,19 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             return
         }
         let app = UIApplication.shared
-        if let url = navigationAction.request.url {
+        
+        let url: URL = navigationAction.request.url!
+        debugPrint("@20 navigation url\(url)")
+        if (url.scheme != "http" && url.scheme != "https" && url.scheme != "about" && url.scheme != "javascript") {
+            app.openURL(url)
+            decisionHandler(.cancel)
+            return
+        } else if url.host == "itunes.apple.com" {
+            print("url is itunes")
+            app.openURL(url)
+            decisionHandler(.cancel)
+            return
+        }else{
             // a태그 _blank 새창띄우기
             if navigationAction.targetFrame == nil {
                 if app.canOpenURL(url) {
@@ -120,6 +138,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             decisionHandler(.allow)
         }
     }
+    
     
 
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {

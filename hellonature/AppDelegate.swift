@@ -6,7 +6,6 @@
 
 
 import UserNotifications
-import SwiftyJSON
 import Firebase
 import FirebaseMessaging
 
@@ -15,7 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 {
     var window: UIWindow?
     let gcmMessageIDKey = "gcm.message_id"
-    let topic = "/topics/test"
+    let topics = ["/topics/notice", "/topics/event"]
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
@@ -133,7 +132,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         Messaging.messaging().delegate = self
         Messaging.messaging().shouldEstablishDirectChannel = true
         UIApplication.shared.registerForRemoteNotifications();
-//        NotificationCenter.default.addObserver(self, selector: #selector(self.tokenRefreshNotificaiton), name: Notification.Name("NotificationIdentifier"), object: nil)
     }
 
     func tokenRefreshNotificaiton(_ notification: Foundation.Notification)
@@ -156,9 +154,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     **/
     func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String)
     {
-        Messaging.messaging().subscribe(toTopic: self.topic)
-        debugPrint("@13 messaging:\(messaging)")
-        debugPrint("@13 didRefreshRegistrationToken:\(fcmToken)")
+        for topic in topics{
+            Messaging.messaging().subscribe(toTopic: topic)
+            debugPrint("@13 subscribe:\(topic)")
+            debugPrint("@13 didRefreshRegistrationToken:\(fcmToken)")
+        }
     }
 
     @available(iOS 10.0, *)

@@ -19,16 +19,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>SwiftyGif.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
-		<key>SwiftyJSON.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>nanopb.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -37,22 +27,12 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>22CD1033375017BFB2D550723D6331BC</key>
+		<key>1CDD00D96C369E1B0CBEB356B1CCCF77</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>23BB67BB43AB23A0D975D3D2CECD629A</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>3C0300EBF00BE02AF18647590874FC49</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>876A54D59DABCF0AFDEF7F6419F340FD</key>
+		<key>9D075E594C015E869C1E57901A6CF088</key>
 		<dict>
 			<key>primary</key>
 			<true/>

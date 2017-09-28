@@ -7,6 +7,4 @@ target 'hellonature' do
   	# Pods for hellonature
 	pod ‘Firebase/Core’
 	pod ‘Firebase/Messaging’
-	pod ‘SwiftyJSON’
-	pod ‘SwiftyGif’
 end
