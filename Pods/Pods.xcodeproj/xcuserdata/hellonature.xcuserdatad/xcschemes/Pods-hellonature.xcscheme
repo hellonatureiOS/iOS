@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9D075E594C015E869C1E57901A6CF088"
+               BlueprintIdentifier = "3B1546E434EC304DBA0BFD450E214FE5"
                BuildableName = "Pods_hellonature.framework"
                BlueprintName = "Pods-hellonature"
                ReferencedContainer = "container:Pods.xcodeproj">
@@ -26,7 +26,6 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
@@ -37,7 +36,6 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -47,7 +45,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9D075E594C015E869C1E57901A6CF088"
+            BlueprintIdentifier = "3B1546E434EC304DBA0BFD450E214FE5"
             BuildableName = "Pods_hellonature.framework"
             BlueprintName = "Pods-hellonature"
             ReferencedContainer = "container:Pods.xcodeproj">
