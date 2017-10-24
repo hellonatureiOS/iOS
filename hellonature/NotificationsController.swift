@@ -56,11 +56,6 @@ class NotificationsController: NSObject {
                                       completionHandler: { (granted, error) in
                                         NotificationCenter.default.post(name: UserNotificationsChangedNotification, object: nil)
                 })
-        } else if #available(iOS 8.0, *) {
-            let userNotificationSettings = UIUserNotificationSettings(types: [.alert, .badge, .sound],
-                                                                      categories: [])
-            application.registerUserNotificationSettings(userNotificationSettings)
-            
         } else {
             application.registerForRemoteNotifications(matching: [.alert, .badge, .sound])
         }
@@ -90,19 +85,6 @@ class NotificationsController: NSObject {
                     completion(types)
                 }
             })
-        } else if #available(iOS 8.0, *) {
-            if let userNotificationSettings = UIApplication.shared.currentUserNotificationSettings {
-                if userNotificationSettings.types.contains(.alert) {
-                    types.append(.alert)
-                }
-                if userNotificationSettings.types.contains(.badge) {
-                    types.append(.badge)
-                }
-                if userNotificationSettings.types.contains(.sound) {
-                    types.append(.sound)
-                }
-            }
-            completion(types)
         } else {
             let enabledTypes = UIApplication.shared.enabledRemoteNotificationTypes()
             if enabledTypes.contains(.alert) {
