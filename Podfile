@@ -6,7 +6,6 @@ target 'hellonature' do
   	use_frameworks!
   	# Pods for hellonature
 	pod 'Firebase/Core'
-	pod ‘Firebase/Messaging’
-	pod ‘SwiftyJSON’
-	pod 'SwiftyGif'
+	pod 'Firebase/Messaging'
+    pod 'SwiftyGif'
 end
