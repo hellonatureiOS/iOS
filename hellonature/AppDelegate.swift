@@ -13,9 +13,10 @@ import FirebaseMessaging
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate
 {
     var window: UIWindow?
-    var viewController: ViewController?
     let gcmMessageIDKey = "gcm.message_id"
-    
+//    let topics = ["/topics/notice", "/topics/event"]
+
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         debugPrint("@1 AppDelegate DidFinishLaunchingWithOptions")
         if #available(iOS 10.0, *) {
@@ -23,29 +24,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         self.registerForPushNotifications()
         self.window!.rootViewController?.view.backgroundColor = UIColor.white
-        self.viewController = self.window?.rootViewController as? ViewController
-        self.viewController?.view.backgroundColor = UIColor.white
         return true
     }
-    
-    
-    
+
+
+
     /** 알림 등록성공 **/
-//    func application(_ application: UIApplication, didRegister notificationSettings: UIUserNotificationSettings)
-//    {
-//        debugPrint("@2 didRegister \(notificationSettings)")
-//        if (notificationSettings.types == .alert || notificationSettings.types == .badge || notificationSettings.types == .sound)
-//        {
-//            application.registerForRemoteNotifications()
-//        }
-//    }
-    
-    
-    /**앱이 백그라운드에서 알림 메시지를받는 경우,
-     이 콜백은 사용자가 응용 프로그램을 시작하는 알림을 누를 때까지 발생하지 않습니다.
-     TODO : 알림 데이터를 처리합니다.
-     메시지 ID를 인쇄합니다.
-     **/
+    func application(_ application: UIApplication, didRegister notificationSettings: UIUserNotificationSettings)
+    {
+        debugPrint("@2 didRegister \(notificationSettings)")
+        if (notificationSettings.types == .alert || notificationSettings.types == .badge || notificationSettings.types == .sound)
+        {
+            application.registerForRemoteNotifications()
+        }
+    }
+
+
+    /**
+    앱이 백그라운드에서 알림 메시지를받는 경우,
+    이 콜백은 사용자가 응용 프로그램을 시작하는 알림을 누를 때까지 발생하지 않습니다.
+    TODO : 알림 데이터를 처리합니다.
+    메시지 ID를 인쇄합니다.
+    **/
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
         debugPrint("@3 userInfo: \(userInfo)")
         Messaging.messaging().appDidReceiveMessage(userInfo)
@@ -53,7 +53,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             debugPrint("@3 Message ID: \(messageID)")
         }
     }
-    
+
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let messageID = userInfo[gcmMessageIDKey] {
             debugPrint("@4 userInfo: \(userInfo)")
@@ -62,12 +62,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             completionHandler(UIBackgroundFetchResult.newData)
         }
     }
-    
+
     /** 알림 등록실패 **/
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error){
         debugPrint("@5 didFailToRegisterForRemoteNotificationsWithError: \(error)")
     }
-    
+
     /** 디바이스토큰 등록완료 후 호출 **/
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data)
     {
@@ -77,25 +77,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         debugPrint("@6 deviceToken: \(token)")
         debugPrint("@6 Firebase Token:", InstanceID.instanceID().token() as Any)
     }
-    
-    
+
+
     func application(received remoteMessage: MessagingRemoteMessage)
     {
         debugPrint("@7 remoteMessage:\(remoteMessage.appData)")
     }
-    
+
     /** 앱 비활성화 **/
     func applicationDidEnterBackground(_ application: UIApplication) {
         Messaging.messaging().shouldEstablishDirectChannel = false
         debugPrint("@8 AppDelegate DidEnterBackground")
     }
-    
+
     /** 앱 활성화 **/
     func applicationDidBecomeActive(_ application: UIApplication) {
         Messaging.messaging().shouldEstablishDirectChannel = true
+
+//        application.applicationIconBadgeNumber = 0
         debugPrint("@9 AppDelegate DidBecomeActive")
     }
-    
+
     /** FCM 등록 **/
     func registerForPushNotifications()
     {
@@ -125,13 +127,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             let setting = UIUserNotificationSettings(types: type, categories: nil);
             UIApplication.shared.registerUserNotificationSettings(setting);
         }
-        
+
         FirebaseApp.configure()
         Messaging.messaging().delegate = self
         Messaging.messaging().shouldEstablishDirectChannel = true
         UIApplication.shared.registerForRemoteNotifications();
     }
-    
+
     func tokenRefreshNotificaiton(_ notification: Foundation.Notification)
     {
         if let refreshedToken = InstanceID.instanceID().token()
@@ -144,15 +146,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         debugPrint("@19 post Notification userInfo: \(userInfo)")
         NotificationCenter.default.post(name: Notification.Name("fcm_data"), object: nil, userInfo: userInfo)
     }
-    
-    /**새로운 FCM 토큰을 받을 때마다 호출**/
+
+    /**
+    FCM이 새로운 FCM 토큰을 받을 때마다 호출
+    알림허용 주제를 설정
+    이 토큰을 응용 프로그램 서버에 알림을 보낼 수 있습니다.
+    **/
     func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String)
     {
-        viewController?.startWebview(token: fcmToken)
-        debugPrint("@13 didRefreshRegistrationToken:\(fcmToken)")
-        
+        /**
+        for topic in topics{
+            Messaging.messaging().subscribe(toTopic: topic)
+            debugPrint("@13 subscribe:\(topic)")
+            debugPrint("@13 didRefreshRegistrationToken:\(fcmToken)")
+        }
+        **/
     }
-    
+
     @available(iOS 10.0, *)
     public func messaging(_ messaging: Messaging, didReceive remoteMessage: MessagingRemoteMessage)
     {
@@ -163,7 +173,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             let prettyPrinted = String(data: data, encoding: .utf8) else { return }
         debugPrint("@14 Received direct channel message:\n\(prettyPrinted)")
     }
-    
+
     /** 앱이 활성화상태에서 알림 수신시 호출 **/
     @available(iOS 10.0, *)
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void)
@@ -174,7 +184,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         //수신완료
         completionHandler([.alert, .sound])
     }
-    
+
     /** 알림 메세지 탭 동작시 호출 **/
     @available(iOS 10.0, *)
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void)
