@@ -27,6 +27,8 @@
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>헬로네이처</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -44,24 +46,26 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>hellonature</string>
-			</array>
-		</dict>
-		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.878156622733-s4uk8ll1jvd61m23amhbbcplo53jhevd</string>
+				<string>kakao9ceb8c2409f7c4bd7aa358f0be6ee814</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>4</string>
+	<string>81</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
+	<key>KAKAO_APP_KEY</key>
+	<string>9ceb8c2409f7c4bd7aa358f0be6ee814</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>kakao9ceb8c2409f7c4bd7aa358f0be6ee814</string>
+		<string>kakaolink</string>
+		<string>kakaotalk-5.9.7</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>

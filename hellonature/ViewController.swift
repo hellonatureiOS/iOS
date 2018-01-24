@@ -9,9 +9,8 @@ import FirebaseInstanceID
 import FirebaseMessaging
 import SwiftyGif
 
-
-let SITE_DOMAIN:String = "http://www.hellonature.net/mobile_shop/"
-let SITE_PARAMETER:String = "UserScreen=iphone_app&hwid="
+var SITE_DOMAIN:String = "https://dev.hellonature.net/mobile_shop"
+let SITE_PARAMETER:String = "/UserScreen=iphone_app&hwid="
 let SITE_BANNER:String = "http://www.hellonature.net/mobile_shop/app/index.html"
 let LOADED_APP_BANNER:String = "loaded app banner"
 let CLOSE_APP_BANNER:String = "close app banner"
@@ -24,13 +23,15 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     var mainView: WKWebView!
     var webViewStarted:Bool = false
     var showStatusBar:Bool = false
-    
+
     /** 뷰컨트롤러 시작 **/
     override func viewDidLoad() {
         super.viewDidLoad()
         self.createWebview()
         self.createSplash()
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(self.startWebview), name: Notification.Name("kakao"), object: nil)
     }
     
     func createWebview(){
@@ -38,8 +39,42 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         config.userContentController = self.createWebviewController()
         self.createMainview(config: config)
         self.createBannerview(config: config)
-        self.startWebview()
+        self.startWebview(nil)
     }
+    
+    /** 기본 웹뷰의 시작 페이지 불러오기 **/
+    @objc func startWebview(_ notification: NSNotification?){
+        let deviceToken = InstanceID.instanceID().token()
+        let token = deviceToken == nil ? "" : deviceToken!
+        var kakaourl = ""
+        if notification != nil{
+            let userInfo = notification!.userInfo
+            let iosparam = userInfo?["iosParam"] as! String
+            let indexStartOfiosparam = iosparam.index(iosparam.startIndex, offsetBy: 12)
+            kakaourl = String(iosparam[indexStartOfiosparam...])
+        }
+        DispatchQueue.global().async {
+            do {
+                let update = try self.isUpdateAvailable()
+                
+                DispatchQueue.main.async {
+                    // 도메인 + 기본 URL파라미터 + 디바이스 토큰 + update유무
+                    debugPrint("\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)")
+                    self.webView.load(URLRequest(url: URL(string: "\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)&needUpdate=\(update)")!))
+                }
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+//    @objc func startKakaoWebview(_ notification: NSNotification){
+//        let userInfo = notification.userInfo
+//        let iosparam = userInfo?["iosParam"] as! String
+//        let indexStartOfiosparam = iosparam.index(iosparam.startIndex, offsetBy: 12)
+//        webView.load(URLRequest(url: URL (string: SITE_DOMAIN + iosparam[indexStartOfiosparam...])!))
+//
+//    }
     
     /** 스플래시 애니메이션 붙이기 **/
     func createSplash(){
@@ -110,15 +145,30 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return WKUserScript(source: script, injectionTime: WKUserScriptInjectionTime.atDocumentStart, forMainFrameOnly: false)
     }
     
-    /** 기본 웹뷰의 시작 페이지 불러오기 **/
-    func startWebview(){
-        let deviceToken = InstanceID.instanceID().token()
-        let token = deviceToken == nil ? "" : deviceToken!
-        // 도메인 + 기본 URL파라미터 + 디바이스 토큰
-        debugPrint("\(SITE_DOMAIN)?\(SITE_PARAMETER)\(token)")
-        webView.load(URLRequest(url: URL(string: "\(SITE_DOMAIN)?\(SITE_PARAMETER)\(token)")!))
-    }
+
     
+    enum VersionError: Error {
+        case invalidResponse, invalidBundleInfo
+    }
+    func isUpdateAvailable() throws -> Bool {
+        guard let info = Bundle.main.infoDictionary,
+            let currentVersion = info["CFBundleShortVersionString"] as? String,
+            let identifier = info["CFBundleIdentifier"] as? String,
+            let url = URL(string: "http://itunes.apple.com/lookup?bundleId=\(identifier)") else {
+                throw VersionError.invalidBundleInfo
+        }
+        debugPrint("currentVersion : \(currentVersion)");
+        let data = try Data(contentsOf: url)
+        guard let json = try JSONSerialization.jsonObject(with: data, options: [.allowFragments]) as? [String: Any] else {
+            throw VersionError.invalidResponse
+        }
+        if let result = (json["results"] as? [Any])?.first as? [String: Any], let version = result["version"] as? String {
+            debugPrint("version : \(version)");
+            return version != currentVersion
+        }
+        throw VersionError.invalidResponse
+    }
+
     /** 스크립트메시지 핸들러 **/
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if(message.name == "callbackHandler") {

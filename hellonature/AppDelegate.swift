@@ -193,6 +193,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         //수신완료
         completionHandler()
     }
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+        if KLKTalkLinkCenter.shared().isTalkLinkCallback(url) {
+            let params = url.query
+            NotificationCenter.default.post(name: Notification.Name("kakao"), object: nil, userInfo: ["iosParam":params!])
+
+            return true
+        }
+        return false
+    }
 }
 
 
@@ -211,5 +221,3 @@ extension MessagingDelegate {
         print("@18 Received data message: \(remoteMessage.appData)")
     }
 }
-
-

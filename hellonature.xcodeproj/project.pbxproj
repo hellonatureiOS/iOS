@@ -20,6 +20,9 @@
 		6A5A441C1E2F12790054EADD /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A5A441B1E2F12790054EADD /* UserNotifications.framework */; };
 		6A8182821F56A886000BB126 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8182811F56A886000BB126 /* AppDelegate.swift */; };
 		6A8182841F56A99D000BB126 /* NotificationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8182831F56A99D000BB126 /* NotificationsController.swift */; };
+		6AB9644420185C4200B76FA1 /* KakaoLink.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AB9644120185C4200B76FA1 /* KakaoLink.framework */; };
+		6AB9644520185C4200B76FA1 /* KakaoMessageTemplate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AB9644220185C4200B76FA1 /* KakaoMessageTemplate.framework */; };
+		6AB9644620185C4200B76FA1 /* KakaoCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AB9644320185C4200B76FA1 /* KakaoCommon.framework */; };
 		6AF0736D1E4D99230082B417 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6AF0736C1E4D99230082B417 /* Assets.xcassets */; };
 		F7DA441D3C447B052640ECD2 /* Pods_hellonature.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9519B2F46D713EE3892C05A9 /* Pods_hellonature.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 /* End PBXBuildFile section */
@@ -44,6 +47,10 @@
 		6A6B18291F9DB24700700B5D /* SwiftyGif.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftyGif.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6A8182811F56A886000BB126 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6A8182831F56A99D000BB126 /* NotificationsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsController.swift; sourceTree = "<group>"; };
+		6AB9644120185C4200B76FA1 /* KakaoLink.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = KakaoLink.framework; sourceTree = "<group>"; };
+		6AB9644220185C4200B76FA1 /* KakaoMessageTemplate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = KakaoMessageTemplate.framework; sourceTree = "<group>"; };
+		6AB9644320185C4200B76FA1 /* KakaoCommon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = KakaoCommon.framework; sourceTree = "<group>"; };
+		6AB964482018724E00B76FA1 /* KakaoOpenSDK-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KakaoOpenSDK-Bridging-Header.h"; sourceTree = "<group>"; };
 		6AF0736C1E4D99230082B417 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6E8FC14A95747B35DAE77193 /* Pods-hellonature.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hellonature.debug.xcconfig"; path = "Pods/Target Support Files/Pods-hellonature/Pods-hellonature.debug.xcconfig"; sourceTree = "<group>"; };
 		8904936A67EFD87DF5B4B442 /* Pods-hellonature.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hellonature.release.xcconfig"; path = "Pods/Target Support Files/Pods-hellonature/Pods-hellonature.release.xcconfig"; sourceTree = "<group>"; };
@@ -59,8 +66,11 @@
 				1A7741991C8DE0D3000A1B53 /* SystemConfiguration.framework in Frameworks */,
 				1A7741971C8DE09D000A1B53 /* AVFoundation.framework in Frameworks */,
 				1A7741951C8DE035000A1B53 /* ImageIO.framework in Frameworks */,
+				6AB9644420185C4200B76FA1 /* KakaoLink.framework in Frameworks */,
+				6AB9644620185C4200B76FA1 /* KakaoCommon.framework in Frameworks */,
 				1A7741911C8DDFBA000A1B53 /* libstdc++.tbd in Frameworks */,
 				1A77418F1C8DDFAA000A1B53 /* libz.tbd in Frameworks */,
+				6AB9644520185C4200B76FA1 /* KakaoMessageTemplate.framework in Frameworks */,
 				F7DA441D3C447B052640ECD2 /* Pods_hellonature.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -71,6 +81,7 @@
 		1AF433E81C43EB090011764B = {
 			isa = PBXGroup;
 			children = (
+				6AB964482018724E00B76FA1 /* KakaoOpenSDK-Bridging-Header.h */,
 				1AF433F31C43EB090011764B /* hellonature */,
 				1AF433F21C43EB090011764B /* Products */,
 				657A82419289470D1521D2A6 /* Frameworks */,
@@ -106,6 +117,9 @@
 		657A82419289470D1521D2A6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6AB9644320185C4200B76FA1 /* KakaoCommon.framework */,
+				6AB9644120185C4200B76FA1 /* KakaoLink.framework */,
+				6AB9644220185C4200B76FA1 /* KakaoMessageTemplate.framework */,
 				6A6B18291F9DB24700700B5D /* SwiftyGif.framework */,
 				6A6B18271F9DB12900700B5D /* SwiftyGif.framework */,
 				6A5A441B1E2F12790054EADD /* UserNotifications.framework */,
@@ -436,7 +450,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hellonature/hellonature.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = F288LP4869;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -452,10 +466,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.hellonature.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "72c49170-2fa0-4e4e-a691-c95ad746328f";
-				PROVISIONING_PROFILE_SPECIFIER = hellonature_distribution;
+				PROVISIONING_PROFILE = "9276f69a-b8b6-4950-bce2-216a6a729a60";
+				PROVISIONING_PROFILE_SPECIFIER = development;
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "KakaoOpenSDK-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 			};
@@ -470,7 +484,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hellonature/hellonature.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = F288LP4869;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -486,10 +500,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.hellonature.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "72c49170-2fa0-4e4e-a691-c95ad746328f";
-				PROVISIONING_PROFILE_SPECIFIER = hellonature_distribution;
+				PROVISIONING_PROFILE = "9276f69a-b8b6-4950-bce2-216a6a729a60";
+				PROVISIONING_PROFILE_SPECIFIER = development;
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "KakaoOpenSDK-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 4.0;
 			};
