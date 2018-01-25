@@ -9,6 +9,11 @@ import FirebaseInstanceID
 import FirebaseMessaging
 import SwiftyGif
 
+let TRANS_VIEW_LEFT = "tans view left"
+let TRANS_VIEW_RIGHT = "tans view right"
+let TRANS_VIEW_TOP = "tans view top"
+let TRANS_VIEW_BOTTOM = "tans view bottom"
+
 var SITE_DOMAIN:String = "https://dev.hellonature.net/mobile_shop"
 let SITE_PARAMETER:String = "/UserScreen=iphone_app&hwid="
 let SITE_BANNER:String = "http://www.hellonature.net/mobile_shop/app/index.html"
@@ -94,7 +99,9 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     /** 스플래시 애니메이션 삭제 **/
     func removeSplash(){
-        self.animateRTL(current: self.splash, next: self.mainView)
+        self.changeViewTween(type: self.mainView == self.banner ? TRANS_VIEW_TOP : TRANS_VIEW_LEFT, current: self.splash, next: self.mainView)
+        showStatusBar = true
+        setNeedsStatusBarAppearanceUpdate()
     }
     
     /** 기본 웹뷰 초기설정 및 만들기 **/
@@ -103,6 +110,20 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView.navigationDelegate = self
         webView.uiDelegate = self
         self.view.addSubview(webView)
+        self.startWebview(token: self.getDeviceToken())
+    }
+    
+    /** 배너뷰 초기설정 및 만들기 **/
+    func createBannerview(config: WKWebViewConfiguration){
+        banner = WKWebView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height), configuration: config)
+        banner.navigationDelegate = self
+        banner.uiDelegate = self
+        banner.scrollView.isScrollEnabled = false
+        banner.scrollView.bounces = false
+        banner.backgroundColor = UIColor(rgb: 0x1C3F21)
+        banner.load(URLRequest(url: URL(string: SITE_BANNER)!))
+        self.view.addSubview(banner)
+        self.mainView = self.banner
     }
     
     /** 배너뷰 초기설정 및 만들기 **/
@@ -127,8 +148,29 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return contentController
     }
     
-    func animateRTL(current:UIView, next:UIView){
-        next.frame.origin.x = next.frame.width
+    /** 뷰 에니메이션 **/
+    func changeViewTween(type:String, current:UIView, next:UIView){
+        var currDestX:CGFloat = 0.0
+        var currDestY:CGFloat = 0.0
+        let nextDestX:CGFloat = next.frame.origin.x
+        let nextDestY:CGFloat = next.frame.origin.y
+        switch type {
+            case TRANS_VIEW_LEFT:next.frame.origin.x = next.frame.width
+                currDestX = CGFloat(Int(-next.frame.width))
+                currDestY = 0.0
+            case TRANS_VIEW_RIGHT: next.frame.origin.x = -next.frame.width
+                currDestX = CGFloat(Int(next.frame.width))
+                currDestY = 0.0
+            case TRANS_VIEW_TOP: next.frame.origin.y = next.frame.height
+                currDestX = 0.0
+                currDestY = CGFloat(Int(-next.frame.height))
+            case TRANS_VIEW_BOTTOM: next.frame.origin.y = -next.frame.height
+                currDestX = 0.0
+                currDestY = CGFloat(Int(next.frame.height))
+            default: next.frame.origin.y = 0
+                currDestX = 0.0
+                currDestY = 0.0
+        }
         UIView.animate(withDuration: 0.4,
                        delay: 0,
                        options: [.curveEaseInOut],
@@ -176,11 +218,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 debugPrint("JavaScript is sending a message \(NSString(string: body["message"] as! NSString))")
                 //자바스크립트에서 배너뷰 닫기 호출
                 if body["message"] as! String == CLOSE_APP_BANNER {
-//                    self.bannerAnimation(fadeIn: false)
-                    self.animateRTL(current: self.banner, next: self.webView)
+                    self.changeViewTween(type: TRANS_VIEW_LEFT, current: self.banner, next: self.webView)
                     self.mainView = self.webView
-                    showStatusBar = true
-                    setNeedsStatusBarAppearanceUpdate()
                     //배너클릭 주소로 웹뷰 이동
                     if body["param"] != nil {
                         webView.load(URLRequest(url: URL(string: body["param"] as! String)!))
@@ -202,27 +241,28 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         let url: URL = navigationAction.request.url!
         debugPrint("@20 navigation url\(url)")
         if (url.scheme != "http" && url.scheme != "https" && url.scheme != "about" && url.scheme != "javascript") {
-            app.openURL(url)
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
             decisionHandler(.cancel)
             return
         } else if url.host == "itunes.apple.com" {
             print("url is itunes")
-            app.openURL(url)
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
             decisionHandler(.cancel)
             return
         }else{
             // a태그 _blank 새창띄우기
             if navigationAction.targetFrame == nil {
                 if app.canOpenURL(url) {
-                    app.openURL(url)
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
                     decisionHandler(.cancel)
+                    debugPrint("@20 C")
                     return
                 }
             }
             // 폰 이메일 새창띄위기
             if url.scheme == "tel" || url.scheme == "mailto" {
                 if app.canOpenURL(url) {
-                    app.openURL(url)
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
                     decisionHandler(.cancel)
                     return
                 }
@@ -234,28 +274,35 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         if navigationAction.targetFrame == nil {
+            debugPrint("@21 \(navigationAction.request)")
             webView.load(navigationAction.request)
         }
         return nil
+    }
+    /** SSL 설정 **/
+    func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        let cred = URLCredential(trust: challenge.protectionSpace.serverTrust!)
+        completionHandler(.useCredential, cred)
     }
     
     /** 페이지 로딩 완료, webView의 페이지가 로드가 완료 & 처음 페이지 로드시에만 js함수 호출 **/
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         if webView == self.webView && !self.webViewStarted{
             self.webViewStarted = true
-            self.banner.evaluateJavaScript("c")
+            /** 배너 로드 완료 **/
+            self.banner.evaluateJavaScript("appReady('\(version())')", completionHandler: nil)
+ 
        }
     }
     
-    func bannerAnimation(fadeIn:Bool){
-        UIView.animate(withDuration: 0.5, animations: {
-            self.banner.alpha = fadeIn ? 1 : 0
-        }, completion: {
-            (value: Bool) in
-            if !fadeIn{
-                self.banner.removeFromSuperview()
-            }
-        })
+    
+    /** 페이지 로딩 완료, webView의 페이지가 로드가 완료 & 처음 페이지 로드시에만 js함수 호출 **/
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        if webView == self.webView && !self.webViewStarted{
+            self.webViewStarted = true
+            /** 배너 로드 완료 **/
+            self.banner.evaluateJavaScript("appReady('\(version())')", completionHandler: nil)
+       }
     }
     
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
@@ -283,14 +330,30 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.present(alertController, animated: true, completion: nil)
     }
     
+    
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        print(error.localizedDescription)
+    }
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        print("Strat to load")
+    }
+    func webView(webView: WKWebView, didFinishNavigation navigation: WKNavigation!) {
+        print("finish to load")
+    }
+    
+    func version() -> String{
+        let dictionary = Bundle.main.infoDictionary!
+        let version = dictionary["CFBundleShortVersionString"] as! String
+        return version
+    }
+    
 
     /** FCM 메세지에서 시작페이지 가져오기 **/
     @objc func pushReceiver(_ notification: NSNotification){
         let userInfo = notification.userInfo,
-            startURL = userInfo?["start-url"],
-            deviceToken = self.getDeviceToken();
+            startURL = userInfo?["start-url"]
         if(startURL != nil){
-            webView.load(URLRequest(url: URL (string: "\(startURL!)?\(SITE_PARAMETER)\(deviceToken)")!));
+            webView.load(URLRequest(url: URL (string: startURL as! String)!));
         }
     }
     
@@ -341,6 +404,7 @@ extension UIColor{
 extension ViewController: SwiftyGifDelegate {
     func gifDidLoop(sender: UIImageView) {
         print("splash finished")
+        sleep(1)
         self.removeSplash()
     }
 }
