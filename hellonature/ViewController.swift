@@ -53,18 +53,27 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             let indexStartOfiosparam = iosparam.index(iosparam.startIndex, offsetBy: 12)
             kakaourl = String(iosparam[indexStartOfiosparam...])
         }
+        
+        var update:Bool = false
+        do {
+            update = try self.isUpdateAvailable()
+        } catch {
+            print(error)
+        }
+        
+         webView.evaluateJavaScript("navigator.userAgent") { [weak webView] (result, error) in
+            if let webView = webView, let userAgent = result as? String {
+                webView.customUserAgent = userAgent + "/iosCustom/\(update)"
+            }
+        }
+        
         DispatchQueue.global().async {
-            do {
-                let update = try self.isUpdateAvailable()
-                
                 DispatchQueue.main.async {
                     // 도메인 + 기본 URL파라미터 + 디바이스 토큰 + update유무
                     debugPrint("\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)")
                     self.webView.load(URLRequest(url: URL(string: "\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)&needUpdate=\(update)")!))
                 }
-            } catch {
-                print(error)
-            }
+            
         }
     }
     
