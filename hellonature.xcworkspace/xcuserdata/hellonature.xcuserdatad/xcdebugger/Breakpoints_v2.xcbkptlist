@@ -90,11 +90,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "hellonature/AppDelegate.swift"
-            timestampString = "538479125.540643"
+            timestampString = "539147615.1311359"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "103"
-            endingLineNumber = "103"
+            startingLineNumber = "113"
+            endingLineNumber = "113"
             landmarkName = "registerForPushNotifications()"
             landmarkType = "7">
          </BreakpointContent>

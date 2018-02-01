@@ -14,8 +14,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 {
     var window: UIWindow?
     let gcmMessageIDKey = "gcm.message_id"
-    let topics = ["/topics/notice", "/topics/event"]
-
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         debugPrint("@1 AppDelegate DidFinishLaunchingWithOptions")
@@ -24,20 +22,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         self.registerForPushNotifications()
         self.window!.rootViewController?.view.backgroundColor = UIColor.white
+
         return true
     }
 
 
-
-    /** 알림 등록성공 **/
-    func application(_ application: UIApplication, didRegister notificationSettings: UIUserNotificationSettings)
-    {
-        debugPrint("@2 didRegister \(notificationSettings)")
-        if (notificationSettings.types == .alert || notificationSettings.types == .badge || notificationSettings.types == .sound)
-        {
-            application.registerForRemoteNotifications()
-        }
-    }
+//    /** 알림 등록성공 **/
+//    func application(_ application: UIApplication, didRegister notificationSettings: UIUserNotificationSettings)
+//    {
+//        debugPrint("@2 didRegister \(notificationSettings)")
+//        if (notificationSettings.types == .alert || notificationSettings.types == .badge || notificationSettings.types == .sound)
+//        {
+//            application.registerForRemoteNotifications()
+//        }
+//    }
 
 
     /**
@@ -83,19 +81,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     {
         debugPrint("@7 remoteMessage:\(remoteMessage.appData)")
     }
-
-    /** 앱 비활성화 **/
+    
+    /** 앱 포그라운드 **/
+    func applicationWillEnterForeground(_ application: UIApplication) {
+      
+    }
+    
+    /** 앱 백그라운드 **/
     func applicationDidEnterBackground(_ application: UIApplication) {
         Messaging.messaging().shouldEstablishDirectChannel = false
+
         debugPrint("@8 AppDelegate DidEnterBackground")
     }
-
+    
     /** 앱 활성화 **/
     func applicationDidBecomeActive(_ application: UIApplication) {
         Messaging.messaging().shouldEstablishDirectChannel = true
 
 //        application.applicationIconBadgeNumber = 0
         debugPrint("@9 AppDelegate DidBecomeActive")
+    }
+    
+    /** 앱 종료 **/
+    func applicationWillTerminate(_ application: UIApplication) {
+
     }
 
     /** FCM 등록 **/
@@ -154,11 +163,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     **/
     func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String)
     {
-        for topic in topics{
-            Messaging.messaging().subscribe(toTopic: topic)
-            debugPrint("@13 subscribe:\(topic)")
-            debugPrint("@13 didRefreshRegistrationToken:\(fcmToken)")
-        }
     }
 
     @available(iOS 10.0, *)

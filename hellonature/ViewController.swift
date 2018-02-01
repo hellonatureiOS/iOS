@@ -9,9 +9,9 @@ import FirebaseInstanceID
 import FirebaseMessaging
 import SwiftyGif
 
-var SITE_DOMAIN:String = "https://dev.hellonature.net/mobile_shop"
+var SITE_DOMAIN:String = "https://www.hellonature.net/mobile_shop"
 let SITE_PARAMETER:String = "/UserScreen=iphone_app&hwid="
-let SITE_BANNER:String = "http://www.hellonature.net/mobile_shop/app/index.html"
+let SITE_BANNER:String = "\(SITE_DOMAIN)/app/index.html"
 let LOADED_APP_BANNER:String = "loaded app banner"
 let CLOSE_APP_BANNER:String = "close app banner"
 
@@ -69,9 +69,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         
         DispatchQueue.global().async {
                 DispatchQueue.main.async {
+                    let request = URLRequest(url: URL(string: "\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)&needUpdate=\(update)")!)
                     // 도메인 + 기본 URL파라미터 + 디바이스 토큰 + update유무
                     debugPrint("\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)")
-                    self.webView.load(URLRequest(url: URL(string: "\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)&needUpdate=\(update)")!))
+                    self.webView.load(request)
                 }
             
         }
@@ -113,6 +114,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView.uiDelegate = self
         self.view.addSubview(webView)
     }
+    
     
     /** 배너뷰 초기설정 및 만들기 **/
     func createBannerview(config: WKWebViewConfiguration){
@@ -159,6 +161,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     enum VersionError: Error {
         case invalidResponse, invalidBundleInfo
     }
+    
+    
     func isUpdateAvailable() throws -> Bool {
         guard let info = Bundle.main.infoDictionary,
             let currentVersion = info["CFBundleShortVersionString"] as? String,
@@ -211,19 +215,19 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         let url: URL = navigationAction.request.url!
         debugPrint("@20 navigation url\(url)")
         if (url.scheme != "http" && url.scheme != "https" && url.scheme != "about" && url.scheme != "javascript") {
-            app.openURL(url)
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
             decisionHandler(.cancel)
             return
         } else if url.host == "itunes.apple.com" {
             print("url is itunes")
-            app.openURL(url)
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
             decisionHandler(.cancel)
             return
         }else{
             // a태그 _blank 새창띄우기
             if navigationAction.targetFrame == nil {
                 if app.canOpenURL(url) {
-                    app.openURL(url)
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
                     decisionHandler(.cancel)
                     return
                 }
@@ -231,7 +235,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             // 폰 이메일 새창띄위기
             if url.scheme == "tel" || url.scheme == "mailto" {
                 if app.canOpenURL(url) {
-                    app.openURL(url)
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
                     decisionHandler(.cancel)
                     return
                 }
