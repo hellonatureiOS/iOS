@@ -218,14 +218,14 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
             decisionHandler(.cancel)
             return
-        } else if url.host == "itunes.apple.com" {
+        } else if url.host == "itunes.apple.com"{
             print("url is itunes")
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
             decisionHandler(.cancel)
             return
         }else{
             // a태그 _blank 새창띄우기
-            if navigationAction.targetFrame == nil {
+            if navigationAction.targetFrame == nil || url.absoluteString.contains("facebook.com/sharer") || url.absoluteString.contains("story.kakao.com/s/share") || url.absoluteString.contains("blog.naver.com/openapi/share?"){
                 if app.canOpenURL(url) {
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
                     decisionHandler(.cancel)
