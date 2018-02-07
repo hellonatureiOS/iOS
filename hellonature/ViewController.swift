@@ -9,7 +9,7 @@ import FirebaseInstanceID
 import FirebaseMessaging
 import SwiftyGif
 
-var SITE_DOMAIN:String = "https://www.hellonature.net/mobile_shop"
+var SITE_DOMAIN:String = "https://dev.hellonature.net/mobile_shop"
 let SITE_PARAMETER:String = "/UserScreen=iphone_app&hwid="
 let SITE_BANNER:String = "\(SITE_DOMAIN)/app/index.html"
 let LOADED_APP_BANNER:String = "loaded app banner"
@@ -77,14 +77,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             
         }
     }
-    
-//    @objc func startKakaoWebview(_ notification: NSNotification){
-//        let userInfo = notification.userInfo
-//        let iosparam = userInfo?["iosParam"] as! String
-//        let indexStartOfiosparam = iosparam.index(iosparam.startIndex, offsetBy: 12)
-//        webView.load(URLRequest(url: URL (string: SITE_DOMAIN + iosparam[indexStartOfiosparam...])!))
-//
-//    }
     
     /** 스플래시 애니메이션 붙이기 **/
     func createSplash(){
@@ -302,7 +294,9 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         let userInfo = notification.userInfo,
             startURL = userInfo?["start-url"],
             deviceToken = self.getDeviceToken();
+        print("startURL : \(startURL!)")
         if(startURL != nil){
+            print("startURL nil: \(startURL!)")
             webView.load(URLRequest(url: URL (string: "\(startURL!)?\(SITE_PARAMETER)\(deviceToken)")!));
         }
     }

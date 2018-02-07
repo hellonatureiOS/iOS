@@ -27,17 +27,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
 
-//    /** 알림 등록성공 **/
-//    func application(_ application: UIApplication, didRegister notificationSettings: UIUserNotificationSettings)
-//    {
-//        debugPrint("@2 didRegister \(notificationSettings)")
-//        if (notificationSettings.types == .alert || notificationSettings.types == .badge || notificationSettings.types == .sound)
-//        {
-//            application.registerForRemoteNotifications()
-//        }
-//    }
-
-
     /**
     앱이 백그라운드에서 알림 메시지를받는 경우,
     이 콜백은 사용자가 응용 프로그램을 시작하는 알림을 누를 때까지 발생하지 않습니다.
@@ -163,6 +152,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     **/
     func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String)
     {
+        Messaging.messaging().subscribe(toTopic: "beta")
     }
 
     @available(iOS 10.0, *)
