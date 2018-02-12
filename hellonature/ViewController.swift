@@ -9,7 +9,7 @@ import FirebaseInstanceID
 import FirebaseMessaging
 import SwiftyGif
 
-var SITE_DOMAIN:String = "https://dev.hellonature.net/mobile_shop"
+var SITE_DOMAIN:String = "https://www.hellonature.net/mobile_shop"
 let SITE_PARAMETER:String = "/UserScreen=iphone_app&hwid="
 let SITE_BANNER:String = "\(SITE_DOMAIN)/app/index.html"
 let LOADED_APP_BANNER:String = "loaded app banner"
@@ -29,30 +29,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         super.viewDidLoad()
         self.createWebview()
         self.createSplash()
-        NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(self.startWebview), name: Notification.Name("kakao"), object: nil)
-    }
-    
-    func createWebview(){
-        let config = WKWebViewConfiguration()
-        config.userContentController = self.createWebviewController()
-        self.createMainview(config: config)
-        self.createBannerview(config: config)
-        self.startWebview(nil)
-    }
-    
-    /** 기본 웹뷰의 시작 페이지 불러오기 **/
-    @objc func startWebview(_ notification: NSNotification?){
-        let deviceToken = InstanceID.instanceID().token()
-        let token = deviceToken == nil ? "" : deviceToken!
-        var kakaourl = ""
-        if notification != nil{
-            let userInfo = notification!.userInfo
-            let iosparam = userInfo?["iosParam"] as! String
-            let indexStartOfiosparam = iosparam.index(iosparam.startIndex, offsetBy: 12)
-            kakaourl = String(iosparam[indexStartOfiosparam...])
-        }
         
         var update:Bool = false
         do {
@@ -60,22 +36,29 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         } catch {
             print(error)
         }
-        
-         webView.evaluateJavaScript("navigator.userAgent") { [weak webView] (result, error) in
+        /** 웹뷰 custom userAgnet 설정**/
+        webView.evaluateJavaScript("navigator.userAgent") { [weak webView] (result, error) in
             if let webView = webView, let userAgent = result as? String {
                 webView.customUserAgent = userAgent + "/iosCustom/\(update)"
             }
         }
         
-        DispatchQueue.global().async {
-                DispatchQueue.main.async {
-                    let request = URLRequest(url: URL(string: "\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)&needUpdate=\(update)")!)
-                    // 도메인 + 기본 URL파라미터 + 디바이스 토큰 + update유무
-                    debugPrint("\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)")
-                    self.webView.load(request)
-                }
-            
-        }
+        NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(self.kakaoReceiver), name: Notification.Name("kakao"), object: nil)
+    }
+    
+    func createWebview(){
+        let config = WKWebViewConfiguration()
+        config.userContentController = self.createWebviewController()
+        self.createMainview(config: config)
+        self.createBannerview(config: config)
+    }
+    
+    /** 기본 웹뷰의 시작 페이지 불러오기 **/
+    func startWebview(token:String){
+        debugPrint("\(SITE_DOMAIN)?\(SITE_PARAMETER)\(token)")
+        webView.load(URLRequest(url: URL(string: "\(SITE_DOMAIN)?\(SITE_PARAMETER)\(token)")!))
     }
     
     /** 스플래시 애니메이션 붙이기 **/
@@ -105,6 +88,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView.navigationDelegate = self
         webView.uiDelegate = self
         self.view.addSubview(webView)
+        self.startWebview(token: self.getDeviceToken())
     }
     
     
@@ -298,6 +282,28 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         if(startURL != nil){
             print("startURL nil: \(startURL!)")
             webView.load(URLRequest(url: URL (string: "\(startURL!)?\(SITE_PARAMETER)\(deviceToken)")!));
+        }
+    }
+    
+    /** 카카오링크 시작페이지 가져오기 **/
+    @objc func kakaoReceiver(_ notification: NSNotification?){
+        let deviceToken = InstanceID.instanceID().token()
+        let token = deviceToken == nil ? "" : deviceToken!
+        var kakaourl = ""
+        if notification != nil{
+            let userInfo = notification!.userInfo
+            let iosparam = userInfo?["iosParam"] as! String
+            let indexStartOfiosparam = iosparam.index(iosparam.startIndex, offsetBy: 12)
+            kakaourl = String(iosparam[indexStartOfiosparam...])
+        }
+        
+        DispatchQueue.global().async {
+            DispatchQueue.main.async {
+                let request = URLRequest(url: URL(string: "\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)")!)
+                // 도메인 + 기본 URL파라미터 + 디바이스 토큰 + update유무
+                debugPrint("\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)")
+                self.webView.load(request)
+            }
         }
     }
     

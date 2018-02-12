@@ -13,6 +13,7 @@ import FirebaseMessaging
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate
 {
     var window: UIWindow?
+    var viewController: ViewController?
     let gcmMessageIDKey = "gcm.message_id"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
@@ -22,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         self.registerForPushNotifications()
         self.window!.rootViewController?.view.backgroundColor = UIColor.white
+        self.viewController = self.window?.rootViewController as? ViewController
 
         return true
     }
@@ -150,11 +152,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     알림허용 주제를 설정
     이 토큰을 응용 프로그램 서버에 알림을 보낼 수 있습니다.
     **/
+    /** 새로운 FCM 토큰을 받을 때마다 호출 **/
     func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String)
     {
-        Messaging.messaging().subscribe(toTopic: "beta")
+        /** 웹뷰에 토큰을 전달하여 다시 시작 **/
+        viewController?.startWebview(token: fcmToken)
+        debugPrint("@13 didRefreshRegistrationToken:\(fcmToken)")
+        
     }
-
     @available(iOS 10.0, *)
     public func messaging(_ messaging: Messaging, didReceive remoteMessage: MessagingRemoteMessage)
     {
