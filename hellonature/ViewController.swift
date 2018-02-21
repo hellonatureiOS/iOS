@@ -141,19 +141,20 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     func isUpdateAvailable() throws -> Bool {
         guard let info = Bundle.main.infoDictionary,
-            let currentVersion = info["CFBundleShortVersionString"] as? String,
+            let userAppVersion = info["CFBundleShortVersionString"] as? String,
             let identifier = info["CFBundleIdentifier"] as? String,
             let url = URL(string: "http://itunes.apple.com/lookup?bundleId=\(identifier)") else {
                 throw VersionError.invalidBundleInfo
         }
-        debugPrint("currentVersion : \(currentVersion)");
+        debugPrint("userAppVersion : \(userAppVersion)");
         let data = try Data(contentsOf: url)
         guard let json = try JSONSerialization.jsonObject(with: data, options: [.allowFragments]) as? [String: Any] else {
             throw VersionError.invalidResponse
         }
-        if let result = (json["results"] as? [Any])?.first as? [String: Any], let version = result["version"] as? String {
-            debugPrint("version : \(version)");
-            return version != currentVersion
+        if let result = (json["results"] as? [Any])?.first as? [String: Any], let appStroeVersion = result["version"] as? String {
+            debugPrint("appStroeAppVersion : \(appStroeVersion)");
+            print("result : \(userAppVersion < appStroeVersion)")
+            return userAppVersion < appStroeVersion
         }
         throw VersionError.invalidResponse
     }
