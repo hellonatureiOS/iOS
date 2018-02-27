@@ -183,42 +183,67 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     /** 팝업 설정 **/
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        
         if webView != self.webView {
             decisionHandler(.allow)
             return
         }
-        let app = UIApplication.shared
         
+        let app = UIApplication.shared
         let url: URL = navigationAction.request.url!
         debugPrint("@20 navigation url\(url)")
-        if (url.scheme != "http" && url.scheme != "https" && url.scheme != "about" && url.scheme != "javascript") {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-            decisionHandler(.cancel)
-            return
-        } else if url.host == "itunes.apple.com"{
-            print("url is itunes")
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-            decisionHandler(.cancel)
-            return
-        }else{
-            // a태그 _blank 새창띄우기
-            if navigationAction.targetFrame == nil || url.absoluteString.contains("facebook.com/sharer") || url.absoluteString.contains("story.kakao.com/s/share") || url.absoluteString.contains("blog.naver.com/openapi/share?"){
-                if app.canOpenURL(url) {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                    decisionHandler(.cancel)
-                    return
-                }
+        let urlScheme = url.scheme ?? ""
+        let urlHost = url.host ?? ""
+        let noWindowSchemeArray:[String] = ["http","https","about","javasciprt"]
+        let newWindowSchemeArray:[String] = ["tel","mailto"]
+        //페이스북은 트랙킹때문에 메인에서도 열어서 따로 처리
+        let newWindowHostArray:[String] = ["itunes.apple.com","story.kakao.com","blog.naver.com"]
+        
+        var haveToNewWindow = noWindowSchemeArray.contains(urlScheme) == false &&
+                              newWindowSchemeArray.contains(urlScheme)
+        
+            haveToNewWindow = newWindowHostArray.contains(urlHost) ||
+                               navigationAction.targetFrame == nil ||
+                            url.absoluteString.contains("facebook.com/sharer")
+
+        if haveToNewWindow {
+            if app.canOpenURL(url) {
+                app.open(url, options: [:], completionHandler: nil)
+                decisionHandler(.cancel)
+                return
             }
-            // 폰 이메일 새창띄위기
-            if url.scheme == "tel" || url.scheme == "mailto" {
-                if app.canOpenURL(url) {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                    decisionHandler(.cancel)
-                    return
-                }
-            }
+        } else {
             decisionHandler(.allow)
         }
+        
+//        if noWindowSchemeArray.contains(urlScheme) == false {
+//            app.open(url, options: [:], completionHandler: nil)
+//            decisionHandler(.cancel)
+//            return
+//        } else if newWindowHostArray.contains(urlHost){
+//            print("url is itunes")
+//            app.open(url, options: [:], completionHandler: nil)
+//            decisionHandler(.cancel)
+//            return
+//        }else{
+//            // a태그 _blank 새창띄우기
+//            if navigationAction.targetFrame == nil || url.absoluteString.contains("facebook.com/sharer") || url.absoluteString.contains("story.kakao.com/s/share") || url.absoluteString.contains("blog.naver.com/openapi/share?"){
+//                if app.canOpenURL(url) {
+//                    app.open(url, options: [:], completionHandler: nil)
+//                    decisionHandler(.cancel)
+//                    return
+//                }
+//            }
+//            // 폰 이메일 새창띄위기
+//            if url.scheme == "tel" || url.scheme == "mailto" {
+//                if app.canOpenURL(url) {
+//                    app.open(url, options: [:], completionHandler: nil)
+//                    decisionHandler(.cancel)
+//                    return
+//                }
+//            }
+//            decisionHandler(.allow)
+//        }
     }
     
     
