@@ -195,20 +195,31 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         let urlScheme = url.scheme ?? ""
         let urlHost = url.host ?? ""
         let noWindowSchemeArray:[String] = ["http","https","about","javasciprt"]
-        let newWindowSchemeArray:[String] = ["tel","mailto"]
+        let newWindowSchemeArray:[String] = ["tel","mailto","kakaolink"]
         //페이스북은 트랙킹때문에 메인에서도 열어서 따로 처리
         let newWindowHostArray:[String] = ["itunes.apple.com","story.kakao.com","blog.naver.com"]
         
         var haveToNewWindow = noWindowSchemeArray.contains(urlScheme) == false &&
                               newWindowSchemeArray.contains(urlScheme)
         
-            haveToNewWindow = newWindowHostArray.contains(urlHost) ||
-                               navigationAction.targetFrame == nil ||
-                            url.absoluteString.contains("facebook.com/sharer")
-
+            haveToNewWindow = haveToNewWindow ||
+                              newWindowHostArray.contains(urlHost) ||
+                              navigationAction.targetFrame == nil ||
+                              url.absoluteString.contains("facebook.com/sharer")
         if haveToNewWindow {
             if app.canOpenURL(url) {
                 app.open(url, options: [:], completionHandler: nil)
+                decisionHandler(.cancel)
+                return
+            } else if urlScheme == "kakaolink" {  // 카카오톡이 없으면
+                let alert = UIAlertController(title: "알림", message: "카카오톡이 없습니다.", preferredStyle: .alert)
+                let alertAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                let aAction = UIAlertAction(title: "다운받으러가기", style: .default){ (action:UIAlertAction) in
+                    app.open(URL(string: "https://itunes.apple.com/kr/app/kakaotalk/id362057947?mt=8")!, options: [:], completionHandler: nil)
+                }
+                alert.addAction(aAction)
+                alert.addAction(alertAction)
+                present(alert, animated: true, completion: nil)
                 decisionHandler(.cancel)
                 return
             }
