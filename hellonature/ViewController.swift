@@ -29,6 +29,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         super.viewDidLoad()
         self.createWebview()
         self.createSplash()
+        self.createToolbarButton()
         
         var update:Bool = false
         do {
@@ -46,6 +47,17 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.kakaoReceiver), name: Notification.Name("kakao"), object: nil)
+    }
+    
+    // 툴바 생성
+    func createToolbarButton(){
+        let back = UIBarButtonItem(barButtonSystemItem: .reply, target: self, action: #selector(self.goGoodsCart))
+        toolbarItems = [back]
+        navigationController?.isToolbarHidden = true
+        navigationController?.isNavigationBarHidden = true
+    }
+   @objc func goGoodsCart(){
+        webView.load(URLRequest(url: URL(string: "https://www.hellonature.net/mobile_shop/goods/goods_cart.html")!))
     }
     
     func createWebview(){
@@ -225,6 +237,12 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             }
         } else {
             decisionHandler(.allow)
+        }
+        
+        if url.absoluteString.contains("mobile.inicis.com"){
+            navigationController?.isToolbarHidden = false
+        } else {
+            navigationController?.isToolbarHidden = true
         }
         
 //        if noWindowSchemeArray.contains(urlScheme) == false {
