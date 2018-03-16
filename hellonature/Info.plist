@@ -55,7 +55,11 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
+<<<<<<< HEAD
 	<string>228</string>
+=======
+	<string>82</string>
+>>>>>>> e9523fc0838a8dcc19fc0abcda1c3130f6a4002a
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
 	<key>KAKAO_APP_KEY</key>

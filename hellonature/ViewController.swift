@@ -33,6 +33,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.createSplash()
         self.createToolbarButton()
         self.mainView = self.webView
+
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.kakaoReceiver), name: Notification.Name("kakao"), object: nil)
     }
@@ -44,7 +45,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         navigationController?.isToolbarHidden = true
         navigationController?.isNavigationBarHidden = true
     }
-    
+
     @objc func goGoodsCart(){
         webView.load(URLRequest(url: URL(string: "https://www.hellonature.net/mobile_shop/goods/goods_cart.html")!))
     }
@@ -228,7 +229,44 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 break
         }
         
+
         decisionHandler(.allow)
+
+//        if url.absoluteString.contains("mobile.inicis.com"){
+//            navigationController?.isToolbarHidden = false
+//        } else {
+//            navigationController?.isToolbarHidden = true
+//        }
+        
+//        if noWindowSchemeArray.contains(urlScheme) == false {
+//            app.open(url, options: [:], completionHandler: nil)
+//            decisionHandler(.cancel)
+//            return
+//        } else if newWindowHostArray.contains(urlHost){
+//            print("url is itunes")
+//            app.open(url, options: [:], completionHandler: nil)
+//            decisionHandler(.cancel)
+//            return
+//        }else{
+//            // a태그 _blank 새창띄우기
+//            if navigationAction.targetFrame == nil || url.absoluteString.contains("facebook.com/sharer") || url.absoluteString.contains("story.kakao.com/s/share") || url.absoluteString.contains("blog.naver.com/openapi/share?"){
+//                if app.canOpenURL(url) {
+//                    app.open(url, options: [:], completionHandler: nil)
+//                    decisionHandler(.cancel)
+//                    return
+//                }
+//            }
+//            // 폰 이메일 새창띄위기
+//            if url.scheme == "tel" || url.scheme == "mailto" {
+//                if app.canOpenURL(url) {
+//                    app.open(url, options: [:], completionHandler: nil)
+//                    decisionHandler(.cancel)
+//                    return
+//                }
+//            }
+//            decisionHandler(.allow)
+//        }
+
     }
     
     
