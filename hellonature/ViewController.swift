@@ -10,10 +10,11 @@ import FirebaseMessaging
 import SwiftyGif
 
 var SITE_DOMAIN:String = "https://www.hellonature.net/mobile_shop"
-let SITE_PARAMETER:String = "/UserScreen=iphone_app&hwid="
 let SITE_BANNER:String = "\(SITE_DOMAIN)/app/index.html"
 let LOADED_APP_BANNER:String = "loaded app banner"
 let CLOSE_APP_BANNER:String = "close app banner"
+let OPEN_APP_BANNER:String = "open app banner"
+
 
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler{
     
@@ -23,28 +24,16 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     var mainView: WKWebView!
     var webViewStarted:Bool = false
     var showStatusBar:Bool = false
-
+    typealias JSON = [String: AnyObject]
+    
     /** 뷰컨트롤러 시작 **/
     override func viewDidLoad() {
         super.viewDidLoad()
         self.createWebview()
         self.createSplash()
-        
-        var update:Bool = false
-        do {
-            update = try self.isUpdateAvailable()
-        } catch {
-            print(error)
-        }
-        /** 웹뷰 custom userAgnet 설정**/
-        webView.evaluateJavaScript("navigator.userAgent") { [weak webView] (result, error) in
-            if let webView = webView, let userAgent = result as? String {
-                webView.customUserAgent = userAgent + "/iosCustom/\(update)"
-            }
-        }
+        self.mainView = self.webView
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(self.kakaoReceiver), name: Notification.Name("kakao"), object: nil)
     }
     
@@ -56,9 +45,17 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     /** 기본 웹뷰의 시작 페이지 불러오기 **/
-    func startWebview(token:String){
-        debugPrint("\(SITE_DOMAIN)?\(SITE_PARAMETER)\(token)")
-        webView.load(URLRequest(url: URL(string: "\(SITE_DOMAIN)?\(SITE_PARAMETER)\(token)")!))
+    func startWebview(_ url: String){
+        /** 웹뷰 custom userAgnet 설정**/
+        webView.evaluateJavaScript("navigator.userAgent") { [weak webView] (result, error) in
+            if let webView = webView, var userAgent = result as? String {
+                userAgent += " token/\(self.getDeviceToken())"
+                userAgent += " platform/ios"
+                userAgent += " updated/\(self.updateAvailable())"
+                webView.customUserAgent = userAgent
+            }
+        }
+        webView.load(URLRequest(url: URL(string: url)!))
     }
     
     /** 스플래시 애니메이션 붙이기 **/
@@ -66,7 +63,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         let gifManager = SwiftyGifManager(memoryLimit: 20)
         let gifImage = UIImage(gifName: "intro")
         let gifView = UIImageView(gifImage: gifImage, manager: gifManager, loopCount: 1)
-    
+        
         gifView.frame = CGRect(x: 0, y: 0, width: 250, height: 250)
         gifView.center = self.view.center
         gifView.contentMode = UIViewContentMode.scaleAspectFit
@@ -80,6 +77,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     /** 스플래시 애니메이션 삭제 **/
     func removeSplash(){
         self.animateRTL(current: self.splash, next: self.mainView)
+        if self.mainView == self.webView {
+            showStatusBar = true
+            setNeedsStatusBarAppearanceUpdate()
+        }
     }
     
     /** 기본 웹뷰 초기설정 및 만들기 **/
@@ -88,7 +89,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView.navigationDelegate = self
         webView.uiDelegate = self
         self.view.addSubview(webView)
-        self.startWebview(token: self.getDeviceToken())
+        self.startWebview(SITE_DOMAIN)
     }
     
     
@@ -102,7 +103,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         banner.backgroundColor = UIColor(rgb: 0x1C3F21)
         banner.load(URLRequest(url: URL(string: SITE_BANNER)!))
         self.view.addSubview(banner)
-        self.mainView = self.banner
+        banner.isHidden = true
     }
     
     /** 웹뷰 컨트롤러 만들기 **/
@@ -132,56 +133,31 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return WKUserScript(source: script, injectionTime: WKUserScriptInjectionTime.atDocumentStart, forMainFrameOnly: false)
     }
     
-
-    
-    enum VersionError: Error {
-        case invalidResponse, invalidBundleInfo
-    }
-    
-    
-    func isUpdateAvailable() throws -> Bool {
-        guard let info = Bundle.main.infoDictionary,
-            let userAppVersion = info["CFBundleShortVersionString"] as? String,
-            let identifier = info["CFBundleIdentifier"] as? String,
-            let url = URL(string: "http://itunes.apple.com/lookup?bundleId=\(identifier)") else {
-                throw VersionError.invalidBundleInfo
-        }
-        debugPrint("userAppVersion : \(userAppVersion)");
-        let data = try Data(contentsOf: url)
-        guard let json = try JSONSerialization.jsonObject(with: data, options: [.allowFragments]) as? [String: Any] else {
-            throw VersionError.invalidResponse
-        }
-        if let result = (json["results"] as? [Any])?.first as? [String: Any], let appStroeVersion = result["version"] as? String {
-            debugPrint("appStroeAppVersion : \(appStroeVersion)");
-            print("result : \(userAppVersion < appStroeVersion)")
-            return userAppVersion < appStroeVersion
-        }
-        throw VersionError.invalidResponse
-    }
-
     /** 스크립트메시지 핸들러 **/
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if(message.name == "callbackHandler") {
             if let body:NSDictionary = (message.body as? NSDictionary){
-                debugPrint("JavaScript is sending a message \(NSString(string: body["message"] as! NSString))")
-                //자바스크립트에서 배너뷰 닫기 호출
-                if body["message"] as! String == CLOSE_APP_BANNER {
-//                    self.bannerAnimation(fadeIn: false)
+                let message = body["message"] as! String
+                debugPrint("@@@@", message)
+                switch message {
+                case OPEN_APP_BANNER:
+                    self.banner.isHidden = false
+                    self.mainView = self.banner
+                default:
                     self.animateRTL(current: self.banner, next: self.webView)
-                    self.mainView = self.webView
                     showStatusBar = true
                     setNeedsStatusBarAppearanceUpdate()
-                    //배너클릭 주소로 웹뷰 이동
-                    if body["param"] != nil {
-                        webView.load(URLRequest(url: URL(string: body["param"] as! String)!))
-                    }
                 }
+                guard let url = body["param"] else {
+                    return
+                }
+                self.startWebview(url as! String)
             }
         }
     }
-
     
-    /** 팝업 설정 **/
+    
+   /** 팝업 설정 **/
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         
         if webView != self.webView {
@@ -226,35 +202,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         } else {
             decisionHandler(.allow)
         }
-        
-//        if noWindowSchemeArray.contains(urlScheme) == false {
-//            app.open(url, options: [:], completionHandler: nil)
-//            decisionHandler(.cancel)
-//            return
-//        } else if newWindowHostArray.contains(urlHost){
-//            print("url is itunes")
-//            app.open(url, options: [:], completionHandler: nil)
-//            decisionHandler(.cancel)
-//            return
-//        }else{
-//            // a태그 _blank 새창띄우기
-//            if navigationAction.targetFrame == nil || url.absoluteString.contains("facebook.com/sharer") || url.absoluteString.contains("story.kakao.com/s/share") || url.absoluteString.contains("blog.naver.com/openapi/share?"){
-//                if app.canOpenURL(url) {
-//                    app.open(url, options: [:], completionHandler: nil)
-//                    decisionHandler(.cancel)
-//                    return
-//                }
-//            }
-//            // 폰 이메일 새창띄위기
-//            if url.scheme == "tel" || url.scheme == "mailto" {
-//                if app.canOpenURL(url) {
-//                    app.open(url, options: [:], completionHandler: nil)
-//                    decisionHandler(.cancel)
-//                    return
-//                }
-//            }
-//            decisionHandler(.allow)
-//        }
     }
     
     
@@ -309,23 +256,36 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.present(alertController, animated: true, completion: nil)
     }
     
-
+    
     /** FCM 메세지에서 시작페이지 가져오기 **/
     @objc func pushReceiver(_ notification: NSNotification){
-        let userInfo = notification.userInfo,
-            startURL = userInfo?["start-url"],
-            deviceToken = self.getDeviceToken();
-        print("startURL : \(startURL!)")
-        if(startURL != nil){
-            print("startURL nil: \(startURL!)")
-            webView.load(URLRequest(url: URL (string: "\(startURL!)?\(SITE_PARAMETER)\(deviceToken)")!));
+        guard let userInfo = notification.userInfo else {
+            return
         }
+        debugPrint("@@@@userInfo", userInfo)
+        guard let pushNo = userInfo["push_no"] else {
+            return
+        }
+        
+        debugPrint("@@@@pushNo", pushNo)
+        //self.httpRequest("https://www.api.hellonature.net/push/update/\(pushNo)", parameters: ["uid": "12222"] as AnyObject)
+        
+        guard let startURL = userInfo["start-url"] as? String else {
+           return
+        }
+        
+        if startURL.count == 0 {
+            return
+        }
+        
+        debugPrint("@@@@startURL", startURL)
+        self.banner.removeFromSuperview()
+        self.mainView = self.webView
+        self.startWebview(startURL)
     }
     
     /** 카카오링크 시작페이지 가져오기 **/
     @objc func kakaoReceiver(_ notification: NSNotification?){
-        let deviceToken = InstanceID.instanceID().token()
-        let token = deviceToken == nil ? "" : deviceToken!
         var kakaourl = ""
         if notification != nil{
             let userInfo = notification!.userInfo
@@ -336,10 +296,9 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         
         DispatchQueue.global().async {
             DispatchQueue.main.async {
-                let request = URLRequest(url: URL(string: "\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)")!)
-                // 도메인 + 기본 URL파라미터 + 디바이스 토큰 + update유무
-                debugPrint("\(SITE_DOMAIN+kakaourl)?\(SITE_PARAMETER)\(token)")
-                self.webView.load(request)
+                self.startWebview("\(SITE_DOMAIN)\(kakaourl)")
+                self.banner.removeFromSuperview()
+                self.mainView = self.webView
             }
         }
     }
@@ -376,6 +335,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
 }
 
+
 extension UIColor{
     convenience init(rgb: UInt){
         self.init(
@@ -387,6 +347,82 @@ extension UIColor{
     }
 }
 
+
+extension ViewController{
+    /** 앱 버전 체크 **/
+    func updateAvailable() -> Bool{
+        var needUpdate:Bool = false
+        do {
+            guard let info = Bundle.main.infoDictionary,
+                let userAppVersion = info["CFBundleShortVersionString"] as? String,
+                let identifier = info["CFBundleIdentifier"] as? String,
+                let url = URL(string: "http://itunes.apple.com/lookup?bundleId=\(identifier)") else {
+                    throw VersionError.invalidBundleInfo
+            }
+            debugPrint("userAppVersion : \(userAppVersion)");
+            let data = try Data(contentsOf: url)
+            guard let json = self.parseJSON(data) else {
+                throw VersionError.invalidResponse
+            }
+            if let result = (json["results"] as? [Any])?.first as? [String: Any], let appStroeVersion = result["version"] as? String {
+                debugPrint("appStroeAppVersion : \(appStroeVersion)");
+                print("result : \(userAppVersion < appStroeVersion)")
+                needUpdate = userAppVersion < appStroeVersion
+            }
+            throw VersionError.invalidResponse
+        } catch {
+            print(error)
+        }
+        return needUpdate
+    }
+    
+    enum VersionError: Error {
+        case invalidResponse, invalidBundleInfo
+    }
+    
+    /** 서버 통신 **/
+    private func httpRequest(_ url: String, parameters: AnyObject) {
+        guard let url = URL(string: url) else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
+        } catch let error {
+            print(error.localizedDescription)
+        }
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+
+        let session = URLSession.shared
+        session.dataTask(with: request) { (data, response, error) in
+//            debugPrint("@@@res", response as Any)
+            guard error == nil else {
+                debugPrint("@@@err")
+                return
+            }
+            debugPrint("@@@data", data as Any)
+//            guard self.parseJSON(data) != nil else {
+//                return
+//            }
+            
+        }.resume()
+    }
+    
+    /** json 파싱 **/
+    func parseJSON(_ data: Data?) -> AnyObject? {
+        if let data = data {
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: [])
+                return json as AnyObject
+            } catch let error {
+                debugPrint(error.localizedDescription)
+            }
+        }
+        return nil
+    }
+}
+
 /** 스플래시 애니메이션 완료 시 **/
 extension ViewController: SwiftyGifDelegate {
     func gifDidLoop(sender: UIImageView) {
@@ -394,6 +430,7 @@ extension ViewController: SwiftyGifDelegate {
         self.removeSplash()
     }
 }
+
 
 
 

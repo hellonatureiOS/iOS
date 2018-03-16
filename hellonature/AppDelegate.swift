@@ -156,7 +156,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String)
     {
         /** 웹뷰에 토큰을 전달하여 다시 시작 **/
-        viewController?.startWebview(token: fcmToken)
+        viewController?.startWebview(SITE_DOMAIN)
         debugPrint("@13 didRefreshRegistrationToken:\(fcmToken)")
         
     }
