@@ -115,6 +115,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return contentController
     }
     
+    /** 스라이드 애니메이션 **/
     func animateRTL(current:UIView, next:UIView){
         next.frame.origin.x = next.frame.width
         UIView.animate(withDuration: 0.4,
@@ -137,16 +138,17 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if(message.name == "callbackHandler") {
             if let body:NSDictionary = (message.body as? NSDictionary){
-                let message = body["message"] as! String
-                debugPrint("@@@@", message)
+                guard let message = body["message"] as? String else {
+                    return
+                }
                 switch message {
-                case OPEN_APP_BANNER:
-                    self.banner.isHidden = false
-                    self.mainView = self.banner
-                default:
-                    self.animateRTL(current: self.banner, next: self.webView)
-                    showStatusBar = true
-                    setNeedsStatusBarAppearanceUpdate()
+                    case OPEN_APP_BANNER:
+                        self.banner.isHidden = false
+                        self.mainView = self.banner
+                    default:
+                        self.animateRTL(current: self.banner, next: self.webView)
+                        showStatusBar = true
+                        setNeedsStatusBarAppearanceUpdate()
                 }
                 guard let url = body["param"] else {
                     return
@@ -267,8 +269,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             return
         }
         
-        debugPrint("@@@@pushNo", pushNo)
-        //self.httpRequest("https://www.api.hellonature.net/push/update/\(pushNo)", parameters: ["uid": "12222"] as AnyObject)
+   
+        self.httpRequest("https://api.hellonature.net/push/update/\(pushNo)", parameters: ["uid": self.getDeviceToken()] as AnyObject)
         
         guard let startURL = userInfo["start-url"] as? String else {
            return
@@ -366,7 +368,6 @@ extension ViewController{
             }
             if let result = (json["results"] as? [Any])?.first as? [String: Any], let appStroeVersion = result["version"] as? String {
                 debugPrint("appStroeAppVersion : \(appStroeVersion)");
-                print("result : \(userAppVersion < appStroeVersion)")
                 needUpdate = userAppVersion < appStroeVersion
             }
             throw VersionError.invalidResponse
@@ -383,9 +384,9 @@ extension ViewController{
     /** 서버 통신 **/
     private func httpRequest(_ url: String, parameters: AnyObject) {
         guard let url = URL(string: url) else { return }
+        debugPrint(url)
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
         } catch let error {
@@ -396,16 +397,9 @@ extension ViewController{
 
         let session = URLSession.shared
         session.dataTask(with: request) { (data, response, error) in
-//            debugPrint("@@@res", response as Any)
             guard error == nil else {
-                debugPrint("@@@err")
                 return
             }
-            debugPrint("@@@data", data as Any)
-//            guard self.parseJSON(data) != nil else {
-//                return
-//            }
-            
         }.resume()
     }
     
@@ -422,6 +416,7 @@ extension ViewController{
         return nil
     }
 }
+
 
 /** 스플래시 애니메이션 완료 시 **/
 extension ViewController: SwiftyGifDelegate {

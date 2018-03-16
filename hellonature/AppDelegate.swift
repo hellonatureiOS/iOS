@@ -81,15 +81,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /** 앱 백그라운드 **/
     func applicationDidEnterBackground(_ application: UIApplication) {
         Messaging.messaging().shouldEstablishDirectChannel = false
-
         debugPrint("@8 AppDelegate DidEnterBackground")
     }
     
     /** 앱 활성화 **/
     func applicationDidBecomeActive(_ application: UIApplication) {
         Messaging.messaging().shouldEstablishDirectChannel = true
-
-//        application.applicationIconBadgeNumber = 0
         debugPrint("@9 AppDelegate DidBecomeActive")
     }
     
@@ -102,7 +99,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func registerForPushNotifications()
     {
         debugPrint("@10 registerForPushNotifications")
-        
         // iOS 10에서 알림제어
         if #available(iOS 10.0, *)
         {
@@ -176,7 +172,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void)
     {
         //알림 처리
-        self.postNotification(userInfo: notification.request.content.userInfo);
+//        self.postNotification(userInfo: notification.request.content.userInfo);
         debugPrint("@15 notification: \(notification)")
         //수신완료
         completionHandler([.alert, .sound])
