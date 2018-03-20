@@ -14,6 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 {
     var window: UIWindow?
     var viewController: ViewController?
+    var sharedData: [String : String] = [:]
     let gcmMessageIDKey = "gcm.message_id"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
@@ -191,9 +192,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
         if KLKTalkLinkCenter.shared().isTalkLinkCallback(url) {
-            let params = url.query
-            NotificationCenter.default.post(name: Notification.Name("kakao"), object: nil, userInfo: ["iosParam":params!])
-
+            sharedData["kakaolink"] = url.query
             return true
         }
         return false
