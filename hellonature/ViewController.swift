@@ -48,7 +48,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     @objc func backwardWebview() {
-        webView.load(URLRequest(url: URL(string: "\(SITE_DOMAIN)/order/order.html")!))
+        if webView.canGoBack {
+            webView.goBack()
+        }
+        
     }
     
     func createWebview(){
@@ -64,7 +67,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView.evaluateJavaScript("navigator.userAgent") { [weak webView] (result, error) in
             if let webView = webView, var userAgent = result as? String {
                 userAgent += " token/\(self.getDeviceToken())"
-                userAgent += " platform/ios"
+                userAgent += " platform/iphone_app"
                 userAgent += " updated/\(self.updateAvailable())"
                 webView.customUserAgent = userAgent
             }
@@ -175,33 +178,47 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     
-    // 링크 팝업설정
+    // 웹뷰 보안 체크
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        
-        if webView != self.webView {
-            decisionHandler(.allow)
-            return
-        }
-        
-        guard let url = navigationAction.request.url  else {
+        guard let url = navigationAction.request.url else {
             decisionHandler(.cancel)
             return
         }
         
-        //스키마 체크
-        if !url.absoluteString.hasPrefix("http://") && !url.absoluteString.hasPrefix("https://") {
-            
+    
+        // 아이튠즈는 기본적으로 사파리로 이동
+        if url.absoluteString.contains("itunes.apple.com") {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            decisionHandler(.cancel)
+            return
+        }
+        
+        // scheme 형태로 호출할 경우
+        if url.scheme != "http" && url.scheme != "https" && url.scheme != "about" {
+            // 앱이 설치되어 있는 경우
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 decisionHandler(.cancel)
                 return
+            // 앱이 설치되어 있지 않은 경우
             } else {
-                print("@@@scheme\(url.scheme)")
-                if url.scheme == "kakaolink" {
-                    let alert = UIAlertController(title: "알림", message: "카카오톡이 없습니다.", preferredStyle: .alert)
+                var warnning: (message: String, url: String)?
+                if let scheme = url.scheme {
+                    switch scheme {
+                        //카카오 톡일 경우
+                        case "kakaolink": warnning = (message: "카카오톡 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/kakaotalk/id362057947?mt=8")
+                        //이니시스 결제
+                        case "ispmobile": warnning = (message: "ISP/페이북 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/isp-%ED%8E%98%EC%9D%B4%EB%B6%81/id369125087?mt=8")
+                    
+                        default: warnning = nil
+                    }
+                }
+                // 경고 정보가 있다면
+                if let options = warnning {
+                    let alert = UIAlertController(title: "알림", message: options.message , preferredStyle: .alert)
                     let alertAction = UIAlertAction(title: "OK", style: .default, handler: nil)
                     let aAction = UIAlertAction(title: "다운받으러가기", style: .default){ (action:UIAlertAction) in
-                        UIApplication.shared.open(URL(string: "https://itunes.apple.com/kr/app/kakaotalk/id362057947?mt=8")!, options: [:], completionHandler: nil)
+                        UIApplication.shared.open(URL(string: options.url)!, options: [:], completionHandler: nil)
                     }
                     alert.addAction(aAction)
                     alert.addAction(alertAction)
@@ -209,65 +226,40 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     decisionHandler(.cancel)
                     return
                 }
-                //ISP 모바일 열수 없음으로 나오므로 일단 이쪽으로....
-                if url.scheme == "ispmobile" {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                    decisionHandler(.cancel)
-                    return
+            }
+        // http, https 일반
+        }else{
+            if let scheme = url.scheme, let host = url.host {
+                //ISP 결제시 불러오는 PG사 페이지 체크
+                if scheme != "about" && !host.contains("www.hellonature.net") && !host.contains("www.facebook.com") {
+                    print("@@@@", url)
+                    navigationController?.setToolbarHidden(false, animated: true)
                 }
             }
         }
-        // A태그 _blank
-        //        switch navigationAction.navigationType {
-        //            case .linkActivated:
-        //                print("@@@\lnked(url)")
-        //                if navigationAction.targetFrame == nil || !navigationAction.targetFrame!.isMainFrame {
-        //                    if UIApplication.shared.canOpenURL(url) {
-        //                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        //                        decisionHandler(.cancel)
-        //                        return
-        //                    }
-        //                }
-        //            case .backForward:
-        //                break
-        //            case .formResubmitted:
-        //                break
-        //            case .formSubmitted:
-        //                break
-        //            case .other:
-        //                break
-        //            case .reload:
-        //                break
-        //        }
-        //
-        if url.absoluteString.contains("mobile.inicis.com"){
-            navigationController?.isToolbarHidden = false
-        } else {
-            navigationController?.isToolbarHidden = true
-        }
-        
         decisionHandler(.allow)
-        
     }
     
-    
-    // 자바스크립트 팝업 설정
+
+    // 팝업
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         guard let url = navigationAction.request.url, let host = url.host else {
             return nil
         }
-        print("@@@blank\(url)")
-        let blanks = ["itunes.apple.com", "story.kakao.com", "blog.naver.com", "www.facebook.com", "drmobile.inicis.com"]
-        guard let targetFrame = navigationAction.targetFrame, targetFrame.isMainFrame else {
+        // 팝업이 허용된 도메인들
+        let blanks = ["itunes.apple.com", "story.kakao.com", "blog.naver.com", "www.facebook.com", "www.instagram.com"]
+        if navigationAction.targetFrame == nil {
+            // 사파리로 팝업
             if blanks.contains(host) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                return nil
             }
-            return nil
+            // 허용되지 않은 도메인들은 웹뷰로
+            webView.load(navigationAction.request)
         }
         return nil
     }
-    
-    
+ 
     /** 페이지 로딩 완료, webView의 페이지가 로드가 완료 & 처음 페이지 로드시에만 js함수 호출 **/
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         if webView == self.webView && !self.webViewStarted{
@@ -353,6 +345,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     self.navigationController?.isToolbarHidden = true
                 }
             }
+            appDelegate.sharedData["kakaolink"] = nil
         }
     }
     
@@ -446,7 +439,7 @@ extension ViewController{
             guard error == nil else {
                 return
             }
-            }.resume()
+        }.resume()
     }
     
     /** json 파싱 **/

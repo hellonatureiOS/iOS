@@ -2,29 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key> LSApplicationQueriesSchemes </key>
-	<array>
-		<string>shinhan-sr-ansimclick</string>
-		<string>smshinhanansimclick</string>
-		<string>hdcardappcardansimclick</string>
-		<string>smhyundaiansimclick</string>
-		<string>mpocket.online.ansimclick</string>
-		<string>scardcertiapp</string>
-		<string>cloudpay</string>
-		<string>nhappcardansimclick</string>
-		<string>nonghyupcardansimclick</string>
-		<string>kb-acp</string>
-		<string>lotteappcard</string>
-		<string>lottesmartpay</string>
-		<string>citispay</string>
-		<string>kpay</string>
-		<string>ispmobile</string>
-		<string>paypin</string>
-		<string>payco</string>
-		<string>kftc-bankpay</string>
-		<string>uppay</string>
-		<string>banka</string>
-	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -53,9 +30,17 @@
 				<string>kakao9ceb8c2409f7c4bd7aa358f0be6ee814</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>hellonature</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>239</string>
+	<string>439</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
 	<key>KAKAO_APP_KEY</key>
@@ -65,6 +50,26 @@
 		<string>kakao9ceb8c2409f7c4bd7aa358f0be6ee814</string>
 		<string>kakaolink</string>
 		<string>kakaotalk-5.9.7</string>
+		<string>shinhan-sr-ansimclick</string>
+		<string>smshinhanansimclick</string>
+		<string>hdcardappcardansimclick</string>
+		<string>smhyundaiansimclick</string>
+		<string>mpocket.online.ansimclick</string>
+		<string>scardcertiapp</string>
+		<string>cloudpay</string>
+		<string>nhappcardansimclick</string>
+		<string>nonghyupcardansimclick</string>
+		<string>kb-acp</string>
+		<string>lotteappcard</string>
+		<string>lottesmartpay</string>
+		<string>citispay</string>
+		<string>kpay</string>
+		<string>ispmobile</string>
+		<string>paypin</string>
+		<string>payco</string>
+		<string>kftc-bankpay</string>
+		<string>uppay</string>
+		<string>banka</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
