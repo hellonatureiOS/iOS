@@ -9,12 +9,44 @@ import FirebaseInstanceID
 import FirebaseMessaging
 import SwiftyGif
 
-var SITE_DOMAIN:String = "https://www.hellonature.net/mobile_shop"
-let SITE_BANNER:String = "\(SITE_DOMAIN)/app/index.html"
-let LOADED_APP_BANNER:String = "loaded app banner"
-let CLOSE_APP_BANNER:String = "close app banner"
-let OPEN_APP_BANNER:String = "open app banner"
+enum Billing: String, RawRepresentable {
+    case Inicis = "inicis.com"
+    case Hyundaicard = "hyundaicard.com"
+    case Samsungcard = "samsungcard.co.kr"
+    case Shinhancard = "shinhancard.com"
+    case Lottecard = "lottecard.co.kr"
+    case Nonghyup = "nonghyup.com"
+    case Hanacard = "hanacard.co.kr"
+    case Citibank = "citibank.co.kr"
+}
 
+enum Blank: String, RawRepresentable {
+    case Itunes = "itunes.apple.com"
+    case Kakaostory = "story.kakao.com"
+    case Naverblog = "blog.naver.com"
+    case Facebook = "www.facebook.com"
+    case Instagram = "www.instagram.com"
+}
+
+enum Web: String, RawRepresentable {
+    case Http = "http"
+    case Https = "https"
+    case About = "about"
+    case Javascript = "javascript"
+}
+
+enum App: String {
+    case Kakaolink = "kakaolink"
+    case Ispmobile = "ispmobile"
+}
+
+enum This: String {
+    case Domain = "https://www.hellonature.net"
+    case Banner = "/app/"
+    case Base = "/mobile_shop"
+    case Openbanner = "open app banner"
+    case Closebanner = "close app banner"
+}
 
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler{
     
@@ -25,6 +57,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     var mainView: WKWebView?
     var webViewStarted:Bool = false
     var showStatusBar:Bool = false
+    var releaseVers:String?
     typealias JSON = [String: AnyObject]
     
     /** 뷰컨트롤러 시작 **/
@@ -39,9 +72,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         NotificationCenter.default.addObserver(self, selector: #selector(self.kakaoReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
     }
     
-    
     func createToolbar(){
-        let item = UIBarButtonItem(image: UIImage(named: "navigation_back"), style: UIBarButtonItemStyle.plain, target: self, action: #selector(self.backwardWebview))
+        let item: UIBarButtonItem = UIBarButtonItem(title: "돌아가기", style: UIBarButtonItemStyle.plain, target: self, action: #selector(self.backwardWebview))
         toolbarItems = [item]
         navigationController?.isToolbarHidden = true
         navigationController?.isNavigationBarHidden = true
@@ -51,7 +83,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         if webView.canGoBack {
             webView.goBack()
         }
-        
     }
     
     func createWebview(){
@@ -63,7 +94,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     /** 기본 웹뷰의 시작 페이지 불러오기 **/
     func startWebview(_ url: String){
-        /** 웹뷰 custom userAgnet 설정 **/
+        // 웹뷰 custom userAgnet 설정
         webView.evaluateJavaScript("navigator.userAgent") { [weak webView] (result, error) in
             if let webView = webView, var userAgent = result as? String {
                 userAgent += " token/\(self.getDeviceToken())"
@@ -106,7 +137,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView.navigationDelegate = self
         webView.uiDelegate = self
         self.view.addSubview(webView)
-        self.startWebview(SITE_DOMAIN)
+        self.startWebview("\(This.Domain.rawValue)/\(This.Base.rawValue)")
     }
     
     
@@ -118,8 +149,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         banner.scrollView.isScrollEnabled = false
         banner.scrollView.bounces = false
         banner.backgroundColor = UIColor(rgb: 0x1C3F21)
-        banner.load(URLRequest(url: URL(string: SITE_BANNER)!))
+        banner.load(URLRequest(url: URL(string: "\(This.Domain.rawValue)/\(This.Banner.rawValue)")!))
         banner.isHidden = true
+        banner.evaluateJavaScript("document.getElementById('ios').textContent", completionHandler: { (html: Any?, error: Error?) in
+            print(html)
+        })
         self.view.addSubview(banner)
     }
     
@@ -158,14 +192,15 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 guard let message = body["message"] as? String else {
                     return
                 }
-                
-                print("@@@@\(message)")
                 switch message {
-                case OPEN_APP_BANNER:
+                case This.Openbanner.rawValue:
                     self.banner.isHidden = false
                     self.mainView = self.banner
-                default:
+                case This.Closebanner.rawValue:
+                    showStatusBar = true
                     self.animateRTL(current: self.banner, next: self.webView)
+                    setNeedsStatusBarAppearanceUpdate()
+                default:
                     showStatusBar = true
                     setNeedsStatusBarAppearanceUpdate()
                 }
@@ -177,7 +212,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
     }
     
-    
+   
     // 웹뷰 보안 체크
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard let url = navigationAction.request.url else {
@@ -185,16 +220,15 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             return
         }
         
-    
         // 아이튠즈는 기본적으로 사파리로 이동
-        if url.absoluteString.contains("itunes.apple.com") {
+        if url.absoluteString.contains(Blank.Itunes.rawValue) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
             decisionHandler(.cancel)
             return
         }
         
         // scheme 형태로 호출할 경우
-        if url.scheme != "http" && url.scheme != "https" && url.scheme != "about" {
+        if !Web.values.contains(url.scheme ?? "") {
             // 앱이 설치되어 있는 경우
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -206,10 +240,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 if let scheme = url.scheme {
                     switch scheme {
                         //카카오 톡일 경우
-                        case "kakaolink": warnning = (message: "카카오톡 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/kakaotalk/id362057947?mt=8")
+                        case App.Kakaolink.rawValue: warnning = (message: "카카오톡 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/kakaotalk/id362057947?mt=8")
                         //이니시스 결제
-                        case "ispmobile": warnning = (message: "ISP/페이북 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/isp-%ED%8E%98%EC%9D%B4%EB%B6%81/id369125087?mt=8")
-                    
+                        case App.Ispmobile.rawValue: warnning = (message: "ISP/페이북 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/isp-%ED%8E%98%EC%9D%B4%EB%B6%81/id369125087?mt=8")
+                        // 그외
                         default: warnning = nil
                     }
                 }
@@ -229,28 +263,41 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             }
         // http, https 일반
         }else{
-            if let scheme = url.scheme, let host = url.host {
-                //ISP 결제시 불러오는 PG사 페이지 체크
-                if scheme != "about" && !host.contains("www.hellonature.net") && !host.contains("www.facebook.com") {
-                    print("@@@@", url)
-                    navigationController?.setToolbarHidden(false, animated: true)
+            // 카드사목록 포함되어 있는지 체크
+            let contains = Billing.values.filter({ (host) -> Bool in
+                return url.absoluteString.contains(host)
+            })
+            
+            // 팝업은 체크 하지 말자.
+            if url.scheme != Web.About.rawValue {
+                navigationController?.setToolbarHidden(contains.count == 0, animated: true)
+            }
+    
+            //ISP 백버튼 이동 시 리다이렉팅 탈출!
+            if(navigationAction.navigationType == .backForward) {
+                //URL 요청이 중 이니시스 게이트웨이가 포함되어 있으면 한번더 강제 백이동
+                if url.absoluteString.contains("smart/wcard/gateway") {
+                    self.backwardWebview()
+                    decisionHandler(.cancel)
+                    return
                 }
             }
         }
+        
         decisionHandler(.allow)
     }
     
-
+    
     // 팝업
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         guard let url = navigationAction.request.url, let host = url.host else {
             return nil
         }
         // 팝업이 허용된 도메인들
-        let blanks = ["itunes.apple.com", "story.kakao.com", "blog.naver.com", "www.facebook.com", "www.instagram.com"]
+   
         if navigationAction.targetFrame == nil {
             // 사파리로 팝업
-            if blanks.contains(host) {
+            if Blank.values.contains(host) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 return nil
             }
@@ -316,7 +363,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
         
         self.httpRequest("https://api.hellonature.net/push/update/\(pushNo)", parameters: ["uid": self.getDeviceToken()] as AnyObject)
-        guard let startURL = userInfo["start-url"] as? String else {
+        guard let startURL = userInfo["start_url"] as? String else {
             return
         }
         
@@ -334,18 +381,18 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     @objc func kakaoReceiver(_ notification: NSNotification?){
         var link = ""
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let kakaolink = appDelegate.sharedData["kakaolink"] {
+        if let kakaolink = appDelegate.sharedData[App.Kakaolink.rawValue] {
             let range = kakaolink.index(kakaolink.startIndex, offsetBy: 12)
             link = String(kakaolink[range...])
             DispatchQueue.global().async {
                 DispatchQueue.main.async {
-                    self.startWebview("\(SITE_DOMAIN)\(link)")
+                    self.startWebview("\(This.Domain.rawValue)\(link)")
                     self.banner.removeFromSuperview()
                     self.mainView = self.webView
                     self.navigationController?.isToolbarHidden = true
                 }
             }
-            appDelegate.sharedData["kakaolink"] = nil
+            appDelegate.sharedData[App.Kakaolink.rawValue] = nil
         }
     }
     
@@ -462,6 +509,29 @@ extension ViewController: SwiftyGifDelegate {
     func gifDidLoop(sender: UIImageView) {
         print("splash finished")
         self.removeSplash()
+    }
+}
+
+extension RawRepresentable where Self: Hashable {
+    private static func iterateEnum<T: Hashable>(_: T.Type) -> AnyIterator<T> {
+        var index = 0
+        let closure: () -> T? = {
+            let next = withUnsafePointer(to: &index) {
+                $0.withMemoryRebound(to: T.self, capacity: 1) { $0.pointee }
+            }
+            guard next.hashValue == index else { return nil }
+            index += 1
+            return next
+        }
+        return AnyIterator(closure)
+    }
+    
+    static var values: [Self.RawValue] {
+        return iterateEnum(self).map { $0.rawValue }
+    }
+    
+    static var cases: [Self] {
+        return iterateEnum(self).map { $0 }
     }
 }
 

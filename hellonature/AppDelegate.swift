@@ -152,8 +152,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /** 새로운 FCM 토큰을 받을 때마다 호출 **/
     func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String)
     {
-        /** 웹뷰에 토큰을 전달하여 다시 시작 **/
-        viewController?.startWebview(SITE_DOMAIN)
+        viewController?.startWebview(This.Domain.rawValue)
         debugPrint("@13 didRefreshRegistrationToken:\(fcmToken)")
         
     }
