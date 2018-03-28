@@ -42,14 +42,14 @@ enum App: String {
 
 enum This: String {
     case Domain = "https://www.hellonature.net"
-    case Banner = "/app/"
-    case Base = "/mobile_shop"
+    case Base = "https://www.hellonature.net/mobile_shop"
+    case Banner = "/app"
     case Openbanner = "open app banner"
     case Closebanner = "close app banner"
+    case AppVersion = "store app version"
 }
 
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler{
-    
     var webView: WKWebView!
     var banner: WKWebView!
     var splash: UIView!
@@ -57,7 +57,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     var mainView: WKWebView?
     var webViewStarted:Bool = false
     var showStatusBar:Bool = false
-    var releaseVers:String?
+    var currentVersion:String!
     typealias JSON = [String: AnyObject]
     
     /** 뷰컨트롤러 시작 **/
@@ -67,10 +67,21 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.createSplash()
         self.createToolbar()
         self.mainView = self.webView
+        // 버전정보 임시저장
+        self.currentVersion = self.version()
         self.view.backgroundColor = UIColor.white
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.kakaoReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
     }
+    
+    
+    func version() -> String {
+        let dictionary = Bundle.main.infoDictionary!
+        let version = dictionary["CFBundleShortVersionString"] as! String
+        let build = dictionary["CFBundleVersion"] as! String
+        return "\(version).\(build)"
+    }
+    
     
     func createToolbar(){
         let item: UIBarButtonItem = UIBarButtonItem(title: "돌아가기", style: UIBarButtonItemStyle.plain, target: self, action: #selector(self.backwardWebview))
@@ -93,17 +104,26 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     /** 기본 웹뷰의 시작 페이지 불러오기 **/
-    func startWebview(_ url: String){
+    func startWebview(_ url: String?){
         // 웹뷰 custom userAgnet 설정
+        guard let url = url else {
+            return
+        }
+        self.setUserAgent()
+        webView.load(URLRequest(url: URL(string: url)!))
+    }
+    
+    
+    func setUserAgent() {
         webView.evaluateJavaScript("navigator.userAgent") { [weak webView] (result, error) in
             if let webView = webView, var userAgent = result as? String {
                 userAgent += " token/\(self.getDeviceToken())"
                 userAgent += " platform/iphone_app"
-                userAgent += " updated/\(self.updateAvailable())"
+                userAgent += " updated/\(self.currentVersion == self.version())"
                 webView.customUserAgent = userAgent
+                print("@@@currentVersion:\(self.currentVersion), appversion:\(self.version())")
             }
         }
-        webView.load(URLRequest(url: URL(string: url)!))
     }
     
     /** 스플래시 애니메이션 붙이기 **/
@@ -137,7 +157,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView.navigationDelegate = self
         webView.uiDelegate = self
         self.view.addSubview(webView)
-        self.startWebview("\(This.Domain.rawValue)/\(This.Base.rawValue)")
+        self.startWebview(This.Base.rawValue)
     }
     
     
@@ -149,11 +169,9 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         banner.scrollView.isScrollEnabled = false
         banner.scrollView.bounces = false
         banner.backgroundColor = UIColor(rgb: 0x1C3F21)
-        banner.load(URLRequest(url: URL(string: "\(This.Domain.rawValue)/\(This.Banner.rawValue)")!))
+        print("@@@\(This.Base.rawValue)\(This.Banner.rawValue)")
+        banner.load(URLRequest(url: URL(string: "\(This.Base.rawValue)\(This.Banner.rawValue)")!))
         banner.isHidden = true
-        banner.evaluateJavaScript("document.getElementById('ios').textContent", completionHandler: { (html: Any?, error: Error?) in
-            print(html)
-        })
         self.view.addSubview(banner)
     }
     
@@ -193,21 +211,31 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     return
                 }
                 switch message {
+                // 앱 배너 열기
                 case This.Openbanner.rawValue:
                     self.banner.isHidden = false
                     self.mainView = self.banner
+                // 앱 배너 닫기, 페이지 이동
                 case This.Closebanner.rawValue:
-                    showStatusBar = true
+                    if !self.banner.isHidden {
+                        showStatusBar = true
+                        setNeedsStatusBarAppearanceUpdate()
+                    }
                     self.animateRTL(current: self.banner, next: self.webView)
-                    setNeedsStatusBarAppearanceUpdate()
+                    guard let url = body["param"] as? String, !url.isEmpty else {
+                        return
+                    }
+                    self.startWebview(url)
+                // 앱 버전 설정
+                case This.AppVersion.rawValue:
+                    if let version = body["param"] as? String, !version.isEmpty {
+                        self.currentVersion = version
+                        self.setUserAgent()
+                    }
                 default:
                     showStatusBar = true
                     setNeedsStatusBarAppearanceUpdate()
                 }
-                guard let url = body["param"] else {
-                    return
-                }
-                self.startWebview(url as! String)
             }
         }
     }
@@ -379,14 +407,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     /** 카카오링크 시작페이지 가져오기 **/
     @objc func kakaoReceiver(_ notification: NSNotification?){
-        var link = ""
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if let kakaolink = appDelegate.sharedData[App.Kakaolink.rawValue] {
-            let range = kakaolink.index(kakaolink.startIndex, offsetBy: 12)
-            link = String(kakaolink[range...])
             DispatchQueue.global().async {
                 DispatchQueue.main.async {
-                    self.startWebview("\(This.Domain.rawValue)\(link)")
+                    self.startWebview("\(This.Domain.rawValue)\(kakaolink)")
                     self.banner.removeFromSuperview()
                     self.mainView = self.webView
                     self.navigationController?.isToolbarHidden = true
@@ -437,35 +462,6 @@ extension UIColor{
 
 
 extension ViewController{
-    /** 앱 버전 체크 **/
-    func updateAvailable() -> Bool{
-        var needUpdate:Bool = false
-        do {
-            guard let info = Bundle.main.infoDictionary,
-                let userAppVersion = info["CFBundleShortVersionString"] as? String,
-                let identifier = info["CFBundleIdentifier"] as? String,
-                let url = URL(string: "http://itunes.apple.com/lookup?bundleId=\(identifier)") else {
-                    throw VersionError.invalidBundleInfo
-            }
-            debugPrint("userAppVersion : \(userAppVersion)");
-            let data = try Data(contentsOf: url)
-            guard let json = self.parseJSON(data) else {
-                throw VersionError.invalidResponse
-            }
-            if let result = (json["results"] as? [Any])?.first as? [String: Any], let appStroeVersion = result["version"] as? String {
-                debugPrint("appStroeAppVersion : \(appStroeVersion)");
-                needUpdate = userAppVersion < appStroeVersion
-            }
-            throw VersionError.invalidResponse
-        } catch {
-            print(error)
-        }
-        return needUpdate
-    }
-    
-    enum VersionError: Error {
-        case invalidResponse, invalidBundleInfo
-    }
     
     /** 서버 통신 **/
     private func httpRequest(_ url: String, parameters: AnyObject) {
@@ -512,6 +508,7 @@ extension ViewController: SwiftyGifDelegate {
     }
 }
 
+// enum 형태를 Array 형태로 반환 해줌
 extension RawRepresentable where Self: Hashable {
     private static func iterateEnum<T: Hashable>(_: T.Type) -> AnyIterator<T> {
         var index = 0
