@@ -139,9 +139,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
     /** 알림 데이터 전송 **/
-    func postNotification(userInfo: [AnyHashable: Any]){
-        debugPrint("@19 post Notification userInfo: \(userInfo)")
-        NotificationCenter.default.post(name: Notification.Name("fcm_data"), object: nil, userInfo: userInfo)
+    func setShardData(userInfo: [AnyHashable: Any], send: Bool){
+        
+        guard let pushNo = userInfo["push_no"] else {
+            return
+        }
+        sharedData["pushno"] = pushNo as? String
+        guard let startURL = userInfo["start-url"] as? String ?? userInfo["start_url"] as? String else {
+            return
+        }
+        sharedData["pushlink"] = startURL
+    
+        if send {
+            NotificationCenter.default.post(name: Notification.Name("fcm_data"), object: nil)
+        }
     }
 
     /**
@@ -172,7 +183,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void)
     {
         //알림 처리
-//        self.postNotification(userInfo: notification.request.content.userInfo);
+        self.setShardData(userInfo: notification.request.content.userInfo, send: false);
         debugPrint("@15 notification: \(notification)")
         //수신완료
         completionHandler([.alert, .sound])
@@ -183,7 +194,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void)
     {
         //알림 처리
-        self.postNotification(userInfo: response.notification.request.content.userInfo);
+        self.setShardData(userInfo: response.notification.request.content.userInfo, send: true);
         debugPrint("@16 didReceive response Notification \(response) ")
         //수신완료
         completionHandler()

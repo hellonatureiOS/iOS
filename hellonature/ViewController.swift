@@ -70,6 +70,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         // 버전정보 임시저장
         self.currentVersion = self.version()
         self.view.backgroundColor = UIColor.white
+        NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.kakaoReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
     }
@@ -381,28 +382,20 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     
     /** FCM 메세지에서 시작페이지 가져오기 **/
-    @objc func pushReceiver(_ notification: NSNotification){
-        guard let userInfo = notification.userInfo else {
-            return
-        }
-        debugPrint("@@@@userInfo", userInfo)
-        guard let pushNo = userInfo["push_no"] else {
-            return
-        }
+    @objc func pushReceiver(_ notification: NSNotification?){
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         
-        self.httpRequest("https://api.hellonature.net/push/update/\(pushNo)", parameters: ["uid": self.getDeviceToken()] as AnyObject)
-        guard let startURL = userInfo["start_url"] as? String else {
-            return
+        if let pushNo = appDelegate.sharedData["pushno"] {
+            self.httpRequest("https://api.hellonature.net/push/update/\(pushNo)", parameters: ["uid": self.getDeviceToken()] as AnyObject)
+            guard let startURL = appDelegate.sharedData["pushlink"], startURL.count > 0 else {
+                return
+            }
+            self.banner.removeFromSuperview()
+            self.mainView = self.webView
+            self.startWebview(startURL)
+            appDelegate.sharedData["pushno"] = nil
+            appDelegate.sharedData["pushlink"] = nil
         }
-        
-        if startURL.count == 0 {
-            return
-        }
-        
-        debugPrint("@@@@startURL", startURL)
-        self.banner.removeFromSuperview()
-        self.mainView = self.webView
-        self.startWebview(startURL)
     }
     
     /** 카카오링크 시작페이지 가져오기 **/
