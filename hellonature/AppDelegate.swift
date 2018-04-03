@@ -171,9 +171,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /** 새로운 FCM 토큰을 받을 때마다 호출 **/
     func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String)
     {
-        viewController?.setUserAgent()
+        NotificationCenter.default.post(name: Notification.Name("device_token"), object: nil)
         debugPrint("@13 didRefreshRegistrationToken:\(fcmToken)")
-        
     }
     @available(iOS 10.0, *)
     public func messaging(_ messaging: Messaging, didReceive remoteMessage: MessagingRemoteMessage)

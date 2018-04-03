@@ -49,7 +49,10 @@ enum This: String {
     case AppVersion = "store app version"
 }
 
+
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler{
+    typealias userAgent = (updated: Bool, token: String, platform: String)
+    
     var webView: WKWebView!
     var banner: WKWebView!
     var splash: UIView!
@@ -58,7 +61,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     var webViewStarted:Bool = false
     var showStatusBar:Bool = false
     var currentVersion:String!
-    typealias JSON = [String: AnyObject]
+    var uagt: userAgent = (false, "", "iphone_app")
     
     /** 뷰컨트롤러 시작 **/
     override func viewDidLoad() {
@@ -67,8 +70,9 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.createSplash()
         self.createToolbar()
         self.mainView = self.webView
+
         // 버전정보 임시저장
-        self.currentVersion = self.version()
+//        self.currentVersion = self.version()
         self.view.backgroundColor = UIColor.white
         self.navigationController?.navigationBar.barTintColor = UIColor(red:82/255.0, green:166/255.0, blue:223/255.0, alpha:10.0)
         self.navigationController?.navigationBar.tintColor = UIColor.white
@@ -77,7 +81,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.kakaoReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
-        
+        NotificationCenter.default.addObserver(self, selector: #selector(self.tokenReceiver), name: Notification.Name("device_token"), object: nil)
     }
     
     
@@ -105,6 +109,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     func createWebview(){
         let config = WKWebViewConfiguration()
         config.userContentController = self.createWebviewController()
+        
         self.createMainview(config: config)
         self.createBannerview(config: config)
     }
@@ -115,17 +120,17 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         guard let url = url else {
             return
         }
-        self.setUserAgent()
+        
         webView.load(URLRequest(url: URL(string: url)!))
     }
     
     
-    func setUserAgent() {
+    @objc func setUserAgent() {
         webView.evaluateJavaScript("navigator.userAgent") { [weak webView] (result, error) in
             if let webView = webView, var userAgent = result as? String {
-                userAgent += " token/\(self.getDeviceToken())"
-                userAgent += " platform/iphone_app"
-                userAgent += " updated/\(self.currentVersion == self.version())"
+                userAgent += " token/\(self.uagt.token)"
+                userAgent += " platform/\(self.uagt.platform)"
+                userAgent += " updated/\(self.uagt.updated)"
                 webView.customUserAgent = userAgent
                 print(">>>>", userAgent)
             }
@@ -237,8 +242,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     guard let version = body["param"] as? String, !version.isEmpty else {
                         return
                     }
-                    self.currentVersion = version
-                    self.setUserAgent()
+                    self.uagt.updated = version == self.version()
                 default:
                     showStatusBar = true
                     setNeedsStatusBarAppearanceUpdate()
@@ -387,6 +391,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.present(alertController, animated: true, completion: nil)
     }
     
+    @objc func tokenReceiver(_ notification: NSNotification?){
+        self.uagt.token = self.getDeviceToken()
+        self.setUserAgent()
+    }
+
     
     /** FCM 메세지에서 시작페이지 가져오기 **/
     @objc func pushReceiver(_ notification: NSNotification?){
@@ -423,8 +432,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     /** 디바이스 토큰 가져오기 **/
     func getDeviceToken() ->String{
-        let deviceToken = InstanceID.instanceID().token()
-        return deviceToken == nil ? "" : deviceToken!
+        guard let deviceToken = InstanceID.instanceID().token() else {
+            return ""
+        }
+        return deviceToken
     }
     
     
