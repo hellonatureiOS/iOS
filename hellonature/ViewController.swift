@@ -70,9 +70,14 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         // 버전정보 임시저장
         self.currentVersion = self.version()
         self.view.backgroundColor = UIColor.white
+        self.navigationController?.navigationBar.barTintColor = UIColor(red:82/255.0, green:166/255.0, blue:223/255.0, alpha:10.0)
+        self.navigationController?.navigationBar.tintColor = UIColor.white
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
+        
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.kakaoReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+        
     }
     
     
@@ -122,7 +127,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 userAgent += " platform/iphone_app"
                 userAgent += " updated/\(self.currentVersion == self.version())"
                 webView.customUserAgent = userAgent
-                print("@@@currentVersion:\(self.currentVersion), appversion:\(self.version())")
+                print(">>>>", userAgent)
             }
         }
     }
@@ -154,7 +159,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     /** 기본 웹뷰 초기설정 및 만들기 **/
     func createMainview(config: WKWebViewConfiguration){
-        webView = WKWebView(frame: CGRect(x: 0, y: 24, width: self.view.frame.width, height: self.view.frame.height-24), configuration: config)
+        webView = WKWebView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height), configuration: config)
         webView.navigationDelegate = self
         webView.uiDelegate = self
         self.view.addSubview(webView)
@@ -229,10 +234,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     self.startWebview(url)
                 // 앱 버전 설정
                 case This.AppVersion.rawValue:
-                    if let version = body["param"] as? String, !version.isEmpty {
-                        self.currentVersion = version
-                        self.setUserAgent()
+                    guard let version = body["param"] as? String, !version.isEmpty else {
+                        return
                     }
+                    self.currentVersion = version
+                    self.setUserAgent()
                 default:
                     showStatusBar = true
                     setNeedsStatusBarAppearanceUpdate()
@@ -259,6 +265,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         // scheme 형태로 호출할 경우
         if !Web.values.contains(url.scheme ?? "") {
             // 앱이 설치되어 있는 경우
+            print("@@@\(url)", UIApplication.shared.canOpenURL(url))
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 decisionHandler(.cancel)
@@ -439,6 +446,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             return true
         }
     }
+    
 }
 
 

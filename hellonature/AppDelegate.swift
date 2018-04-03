@@ -25,7 +25,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         self.registerForPushNotifications()
         self.window!.rootViewController?.view.backgroundColor = UIColor.white
         self.viewController = self.window?.rootViewController as? ViewController
-
+        if let statusbar = UIApplication.shared.value(forKey: "statusBar") as? UIView {
+            statusbar.backgroundColor = UIColor.white
+        }
         return true
     }
 
@@ -67,7 +69,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         debugPrint("@6 deviceToken: \(token)")
         debugPrint("@6 Firebase Token:", InstanceID.instanceID().token() as Any)
     }
-
+    
+    /** auto constraints fix **/
+    func application(_ application: UIApplication, willChangeStatusBarFrame newStatusBarFrame: CGRect) {
+        let windows = UIApplication.shared.windows
+        for window in windows {
+            window.removeConstraints(window.constraints)
+        }
+    }
 
     func application(received remoteMessage: MessagingRemoteMessage)
     {
@@ -76,7 +85,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     /** 앱 포그라운드 **/
     func applicationWillEnterForeground(_ application: UIApplication) {
-      
     }
     
     /** 앱 백그라운드 **/
@@ -93,7 +101,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     /** 앱 종료 **/
     func applicationWillTerminate(_ application: UIApplication) {
-
     }
 
     /** FCM 등록 **/
@@ -138,8 +145,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             debugPrint("@12 InstanceID token: \(refreshedToken)")
         }
     }
+    
     /** 알림 데이터 전송 **/
-    func setShardData(userInfo: [AnyHashable: Any], send: Bool){
+    func setSharedData(userInfo: [AnyHashable: Any], send: Bool){
         
         guard let pushNo = userInfo["push_no"] else {
             return
@@ -183,7 +191,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void)
     {
         //알림 처리
-        self.setShardData(userInfo: notification.request.content.userInfo, send: false);
+        self.setSharedData(userInfo: notification.request.content.userInfo, send: false);
         debugPrint("@15 notification: \(notification)")
         //수신완료
         completionHandler([.alert, .sound])
@@ -194,7 +202,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void)
     {
         //알림 처리
-        self.setShardData(userInfo: response.notification.request.content.userInfo, send: true);
+        self.setSharedData(userInfo: response.notification.request.content.userInfo, send: true);
         debugPrint("@16 didReceive response Notification \(response) ")
         //수신완료
         completionHandler()

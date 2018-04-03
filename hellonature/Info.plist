@@ -40,7 +40,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>44</string>
+	<string>239</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
 	<key>KAKAO_APP_KEY</key>
@@ -49,7 +49,7 @@
 	<array>
 		<string>kakao9ceb8c2409f7c4bd7aa358f0be6ee814</string>
 		<string>kakaolink</string>
-		<string>kakaotalk-5.9.7</string>
+		<string>kakaotalk</string>
 		<string>shinhan-sr-ansimclick</string>
 		<string>smshinhanansimclick</string>
 		<string>hdcardappcardansimclick</string>
@@ -98,6 +98,8 @@
 	<false/>
 	<key>UIStatusBarHidden</key>
 	<true/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleDefault</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
