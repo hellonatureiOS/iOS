@@ -37,6 +37,7 @@ enum Web: String, RawRepresentable {
 
 enum App: String {
     case Kakaolink = "kakaolink"
+    case Kakaotalk = "kakaotalk"
     case Ispmobile = "ispmobile"
 }
 
@@ -51,8 +52,7 @@ enum This: String {
 
 
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler{
-    typealias userAgent = (updated: Bool, token: String, platform: String)
-    
+
     var webView: WKWebView!
     var banner: WKWebView!
     var splash: UIView!
@@ -61,7 +61,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     var webViewStarted:Bool = false
     var showStatusBar:Bool = false
     var currentVersion:String!
-    var uagt: userAgent = (false, "", "iphone_app")
+    var uagt: String?
     
     /** 뷰컨트롤러 시작 **/
     override func viewDidLoad() {
@@ -70,21 +70,16 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.createSplash()
         self.createToolbar()
         self.mainView = self.webView
-
-        // 버전정보 임시저장
-//        self.currentVersion = self.version()
+        self.currentVersion = self.version()
         self.view.backgroundColor = UIColor.white
-        self.navigationController?.navigationBar.barTintColor = UIColor(red:82/255.0, green:166/255.0, blue:223/255.0, alpha:10.0)
-        self.navigationController?.navigationBar.tintColor = UIColor.white
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
-        
+        UIApplication.shared.statusBarView?.backgroundColor = UIColor.white
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.kakaoReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.tokenReceiver), name: Notification.Name("device_token"), object: nil)
     }
     
-    
+
     func version() -> String {
         let dictionary = Bundle.main.infoDictionary!
         let version = dictionary["CFBundleShortVersionString"] as! String
@@ -120,7 +115,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         guard let url = url else {
             return
         }
-        
+        self.setUserAgent()
         webView.load(URLRequest(url: URL(string: url)!))
     }
     
@@ -128,11 +123,17 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     @objc func setUserAgent() {
         webView.evaluateJavaScript("navigator.userAgent") { [weak webView] (result, error) in
             if let webView = webView, var userAgent = result as? String {
-                userAgent += " token/\(self.uagt.token)"
-                userAgent += " platform/\(self.uagt.platform)"
-                userAgent += " updated/\(self.uagt.updated)"
+                if let uagt = self.uagt {
+                    userAgent = uagt
+                } else {
+                    self.uagt = userAgent
+                }
+                
+                userAgent += " token/\(self.getDeviceToken())"
+                userAgent += " platform/iphone_app"
+                userAgent += " updated/\(self.currentVersion == self.version())"
                 webView.customUserAgent = userAgent
-                print(">>>>", userAgent)
+                print("@@@\(userAgent)")
             }
         }
     }
@@ -157,6 +158,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     func removeSplash(){
         self.animateRTL(current: self.splash, next: self.mainView!)
         if self.mainView == self.webView {
+            sleep(1)
             showStatusBar = true
             setNeedsStatusBarAppearanceUpdate()
         }
@@ -164,7 +166,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     /** 기본 웹뷰 초기설정 및 만들기 **/
     func createMainview(config: WKWebViewConfiguration){
-        webView = WKWebView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height), configuration: config)
+        webView = WKWebView(frame: CGRect(x: 0, y: 24, width: self.view.frame.width, height: self.view.frame.height-24), configuration: config)
         webView.navigationDelegate = self
         webView.uiDelegate = self
         self.view.addSubview(webView)
@@ -242,7 +244,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     guard let version = body["param"] as? String, !version.isEmpty else {
                         return
                     }
-                    self.uagt.updated = version == self.version()
+                    self.currentVersion = version
                 default:
                     showStatusBar = true
                     setNeedsStatusBarAppearanceUpdate()
@@ -258,7 +260,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             decisionHandler(.cancel)
             return
         }
-        
+        print("@@@\(url)")
         // 아이튠즈는 기본적으로 사파리로 이동
         if url.absoluteString.contains(Blank.Itunes.rawValue) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -269,7 +271,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         // scheme 형태로 호출할 경우
         if !Web.values.contains(url.scheme ?? "") {
             // 앱이 설치되어 있는 경우
-            print("@@@\(url)", UIApplication.shared.canOpenURL(url))
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 decisionHandler(.cancel)
@@ -280,7 +281,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 if let scheme = url.scheme {
                     switch scheme {
                         //카카오 톡일 경우
-                        case App.Kakaolink.rawValue: warnning = (message: "카카오톡 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/kakaotalk/id362057947?mt=8")
+                        case App.Kakaotalk.rawValue: warnning = (message: "카카오톡 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/kakaotalk/id362057947?mt=8")
                         //이니시스 결제
                         case App.Ispmobile.rawValue: warnning = (message: "ISP/페이북 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/isp-%ED%8E%98%EC%9D%B4%EB%B6%81/id369125087?mt=8")
                         // 그외
@@ -392,7 +393,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     @objc func tokenReceiver(_ notification: NSNotification?){
-        self.uagt.token = self.getDeviceToken()
+        print("@@@@tokenReceiver", self.getDeviceToken())
         self.setUserAgent()
     }
 
@@ -424,9 +425,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     self.banner.removeFromSuperview()
                     self.mainView = self.webView
                     self.navigationController?.isToolbarHidden = true
+                    appDelegate.sharedData[App.Kakaolink.rawValue] = nil
                 }
             }
-            appDelegate.sharedData[App.Kakaolink.rawValue] = nil
+            
         }
     }
     
@@ -541,6 +543,12 @@ extension RawRepresentable where Self: Hashable {
     
     static var cases: [Self] {
         return iterateEnum(self).map { $0 }
+    }
+}
+
+extension UIApplication {
+    var statusBarView: UIView? {
+        return value(forKey: "statusBar") as? UIView
     }
 }
 
