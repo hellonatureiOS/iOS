@@ -40,7 +40,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>6</string>
+	<string>7</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
 	<key>KAKAO_APP_KEY</key>

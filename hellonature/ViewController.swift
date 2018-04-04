@@ -166,7 +166,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     /** 기본 웹뷰 초기설정 및 만들기 **/
     func createMainview(config: WKWebViewConfiguration){
-        webView = WKWebView(frame: CGRect(x: 0, y: 24, width: self.view.frame.width, height: self.view.frame.height-24), configuration: config)
+        webView = WKWebView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height), configuration: config)
         webView.navigationDelegate = self
         webView.uiDelegate = self
         self.view.addSubview(webView)

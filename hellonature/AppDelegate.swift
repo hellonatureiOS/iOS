@@ -204,6 +204,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         completionHandler()
     }
     
+    
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
         if KLKTalkLinkCenter.shared().isTalkLinkCallback(url) {
             sharedData["kakaolink"] = url.query
@@ -211,6 +212,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         return false
     }
+    
+    func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
+        if KLKTalkLinkCenter.shared().isTalkLinkCallback(url) {
+            sharedData["kakaolink"] = url.query
+            let alert = UIAlertController(title: "알림", message: "test" , preferredStyle: .alert)
+            let aAction = UIAlertAction(title: url.query, style: .default)
+            alert.addAction(aAction)
+  
+            
+            return true
+        }
+        return false
+    }
+    
 }
 
 
