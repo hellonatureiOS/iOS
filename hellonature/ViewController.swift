@@ -152,6 +152,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.splash.addSubview(gifView)
         self.splash.backgroundColor = UIColor(red: 0.11, green: 0.25, blue: 0.13, alpha:1.0)
         self.view.addSubview(self.splash)
+        self.showStatusBar = false
     }
     
     /** 스플래시 애니메이션 삭제 **/
@@ -159,8 +160,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.animateRTL(current: self.splash, next: self.mainView!)
         if self.mainView == self.webView {
             sleep(1)
-            showStatusBar = true
-            setNeedsStatusBarAppearanceUpdate()
         }
     }
     
@@ -208,6 +207,9 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                         next.frame.origin.x = 0
         }, completion: { finished in
             current.removeFromSuperview()
+            if current == self.splash {
+                UIApplication.shared.isStatusBarHidden = false
+            }
         })
     }
     
@@ -231,10 +233,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 // 앱 배너 닫기, 페이지 이동
                 case This.Closebanner.rawValue:
                     if !self.banner.isHidden {
-                        showStatusBar = true
                         setNeedsStatusBarAppearanceUpdate()
                     }
                     self.animateRTL(current: self.banner, next: self.webView)
+                    self.webView.frame.origin.y = UIApplication.shared.statusBarFrame.size.height
                     guard let url = body["param"] as? String, !url.isEmpty else {
                         return
                     }
@@ -246,7 +248,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     }
                     self.currentVersion = version
                 default:
-                    showStatusBar = true
                     setNeedsStatusBarAppearanceUpdate()
                 }
             }

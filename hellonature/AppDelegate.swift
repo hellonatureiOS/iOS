@@ -25,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         self.registerForPushNotifications()
         self.window!.rootViewController?.view.backgroundColor = UIColor.white
         self.viewController = self.window?.rootViewController as? ViewController
+        UIApplication.shared.isStatusBarHidden = true
         return true
     }
 
