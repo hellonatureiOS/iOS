@@ -1,4 +1,5 @@
 PODS:
+  - EasyAnimation (2.0.2)
   - Firebase/Core (4.4.0):
     - FirebaseAnalytics (= 4.0.4)
     - FirebaseCore (= 4.0.9)
@@ -8,10 +9,10 @@ PODS:
   - FirebaseAnalytics (4.0.4):
     - FirebaseCore (~> 4.0)
     - FirebaseInstanceID (~> 2.0)
-    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
+    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
     - nanopb (~> 0.3)
   - FirebaseCore (4.0.9):
-    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
+    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
     - nanopb (~> 0.3)
   - FirebaseInstanceID (2.0.5)
   - FirebaseMessaging (2.0.5):
@@ -23,7 +24,7 @@ PODS:
   - GoogleToolboxForMac/Defines (2.1.3)
   - GoogleToolboxForMac/Logger (2.1.3):
     - GoogleToolboxForMac/Defines (= 2.1.3)
-  - GoogleToolboxForMac/NSData+zlib (2.1.3):
+  - "GoogleToolboxForMac/NSData+zlib (2.1.3)":
     - GoogleToolboxForMac/Defines (= 2.1.3)
   - nanopb (0.3.8):
     - nanopb/decode (= 0.3.8)
@@ -34,11 +35,26 @@ PODS:
   - SwiftyGif (3.1.0)
 
 DEPENDENCIES:
+  - EasyAnimation
   - Firebase/Core
   - Firebase/Messaging
   - SwiftyGif
 
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - EasyAnimation
+    - Firebase
+    - FirebaseAnalytics
+    - FirebaseCore
+    - FirebaseInstanceID
+    - FirebaseMessaging
+    - GoogleToolboxForMac
+    - nanopb
+    - Protobuf
+    - SwiftyGif
+
 SPEC CHECKSUMS:
+  EasyAnimation: 977ef673efe8ce62447807eedb380a77b189dc80
   Firebase: 3e92884a63e8f76d107c43a67d2ab9071e1eda10
   FirebaseAnalytics: 722b53c7b32bfc7806b06e0093a2f5180d4f2c5a
   FirebaseCore: ebe73f64302705e693b1de9919a76edbdd17a19d
@@ -49,6 +65,6 @@ SPEC CHECKSUMS:
   Protobuf: 03eef2ee0b674770735cf79d9c4d3659cf6908e8
   SwiftyGif: aad44b7ef0ad1d599ba83d7aa5759e916b520c42
 
-PODFILE CHECKSUM: 34a7f91b6f8924a05082ff4295e79688e5ba6958
+PODFILE CHECKSUM: acc8efcd9dae9728c00d5ab79ff7992d20456ac2
 
-COCOAPODS: 1.3.1
+COCOAPODS: 1.5.0

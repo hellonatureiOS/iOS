@@ -8,4 +8,5 @@ target 'hellonature' do
 	pod 'Firebase/Core'
 	pod 'Firebase/Messaging'
     pod 'SwiftyGif'
+    pod 'EasyAnimation'
 end

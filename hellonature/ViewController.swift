@@ -8,6 +8,8 @@ import Firebase
 import FirebaseInstanceID
 import FirebaseMessaging
 import SwiftyGif
+import EasyAnimation
+
 
 enum Billing: String, RawRepresentable {
     case Inicis = "inicis.com"
@@ -51,27 +53,30 @@ enum This: String {
 }
 
 
-class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler{
 
+class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler{
     var webView: WKWebView!
     var banner: WKWebView!
     var splash: UIView!
-    var progressView: UIProgressView?
     var mainView: WKWebView?
     var webViewStarted:Bool = false
-    var showStatusBar:Bool = false
+    @objc var showStatusBar:Bool = false
     var currentVersion:String!
+    var screenSize:CGRect!
     var uagt: String?
     
     /** 뷰컨트롤러 시작 **/
     override func viewDidLoad() {
+        EasyAnimation.enable()
         super.viewDidLoad()
+        self.screenSize = UIScreen.main.bounds
         self.createWebview()
         self.createSplash()
         self.createToolbar()
         self.mainView = self.webView
         self.currentVersion = self.version()
         self.view.backgroundColor = UIColor.white
+        
         UIApplication.shared.statusBarView?.backgroundColor = UIColor.white
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
@@ -143,7 +148,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         let gifManager = SwiftyGifManager(memoryLimit: 20)
         let gifImage = UIImage(gifName: "intro")
         let gifView = UIImageView(gifImage: gifImage, manager: gifManager, loopCount: 1)
-        
         gifView.frame = CGRect(x: 0, y: 0, width: 250, height: 250)
         gifView.center = self.view.center
         gifView.contentMode = UIViewContentMode.scaleAspectFit
@@ -157,15 +161,20 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     /** 스플래시 애니메이션 삭제 **/
     func removeSplash(){
-        self.animateRTL(current: self.splash, next: self.mainView!)
+        self.tween(current: self.splash, next: self.mainView!)
         if self.mainView == self.webView {
             sleep(1)
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
+                UIApplication.shared.isStatusBarHidden = false
+                self.webView.frame.origin.y = UIApplication.shared.statusBarFrame.height
+                self.webView.frame.size.height = self.screenSize.height - UIApplication.shared.statusBarFrame.height
+            }
         }
     }
     
     /** 기본 웹뷰 초기설정 및 만들기 **/
     func createMainview(config: WKWebViewConfiguration){
-        webView = WKWebView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height), configuration: config)
+        webView = WKWebView(frame: CGRect(x: 0, y: 0, width: self.screenSize.width, height: self.screenSize.height), configuration: config)
         webView.navigationDelegate = self
         webView.uiDelegate = self
         self.view.addSubview(webView)
@@ -175,13 +184,12 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     
     /** 배너뷰 초기설정 및 만들기 **/
     func createBannerview(config: WKWebViewConfiguration){
-        banner = WKWebView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height), configuration: config)
+        banner = WKWebView(frame: CGRect(x: 0, y: 0, width: self.screenSize.width, height: self.screenSize.height), configuration: config)
         banner.navigationDelegate = self
         banner.uiDelegate = self
         banner.scrollView.isScrollEnabled = false
         banner.scrollView.bounces = false
         banner.backgroundColor = UIColor(rgb: 0x1C3F21)
-        print("@@@\(This.Base.rawValue)\(This.Banner.rawValue)")
         banner.load(URLRequest(url: URL(string: "\(This.Base.rawValue)\(This.Banner.rawValue)")!))
         banner.isHidden = true
         self.view.addSubview(banner)
@@ -197,20 +205,20 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     /** 스라이드 애니메이션 **/
-    func animateRTL(current:UIView, next:UIView){
+    func tween(current:UIView, next:UIView){
         next.frame.origin.x = next.frame.width
-        UIView.animate(withDuration: 0.4,
-                       delay: 0,
-                       options: [.curveEaseInOut],
-                       animations: {
-                        current.frame.origin.x = -current.frame.width
-                        next.frame.origin.x = 0
-        }, completion: { finished in
-            current.removeFromSuperview()
-            if current == self.splash {
-                UIApplication.shared.isStatusBarHidden = false
-            }
-        })
+        UIView.animate(withDuration: 1.0,
+            delay: 0.0,
+            usingSpringWithDamping: 0.7,
+            initialSpringVelocity: 0.0,
+            options: [],
+            animations: {
+                current.frame.origin.x = -current.frame.width
+                next.frame.origin.x = 0
+            },
+            completion: { finished in
+                current.removeFromSuperview()
+            })
     }
     
     /** 웹뷰 컨틀롤러에 추가될 스크립트 **/
@@ -235,7 +243,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                     if !self.banner.isHidden {
                         setNeedsStatusBarAppearanceUpdate()
                     }
-                    self.animateRTL(current: self.banner, next: self.webView)
+                    self.tween(current: self.banner, next: self.webView)
                     self.webView.frame.origin.y = UIApplication.shared.statusBarFrame.size.height
                     guard let url = body["param"] as? String, !url.isEmpty else {
                         return
@@ -336,7 +344,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             return nil
         }
         // 팝업이 허용된 도메인들
-   
         if navigationAction.targetFrame == nil {
             // 사파리로 팝업
             if Blank.values.contains(host) {
@@ -357,16 +364,16 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
     }
     
-    func bannerAnimation(fadeIn:Bool){
-        UIView.animate(withDuration: 0.5, animations: {
-            self.banner.alpha = fadeIn ? 1 : 0
-        }, completion: {
-            (value: Bool) in
-            if !fadeIn{
-                self.banner.removeFromSuperview()
-            }
-        })
-    }
+//    func bannerAnimation(fadeIn:Bool){
+//        UIView.animate(withDuration: 0.5, animations: {
+//            self.banner.alpha = fadeIn ? 1 : 0
+//        }, completion: {
+//            (value: Bool) in
+//            if !fadeIn{
+//                self.banner.removeFromSuperview()
+//            }
+//        })
+//    }
     
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
@@ -451,16 +458,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     override func viewWillDisappear(_ animated: Bool) {
         //NotificationCenter.default.removeObserver(self)
     }
-    
-    /** 상태바 숨기기 설정 **/
-    override var prefersStatusBarHidden: Bool {
-        if showStatusBar == true {
-            return false
-        } else {
-            return true
-        }
-    }
-    
 }
 
 
@@ -519,6 +516,7 @@ extension ViewController{
 extension ViewController: SwiftyGifDelegate {
     func gifDidLoop(sender: UIImageView) {
         print("splash finished")
+        print("aslkfjalskd33", self.splash)
         self.removeSplash()
     }
 }
