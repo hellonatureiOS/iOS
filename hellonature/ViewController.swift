@@ -9,6 +9,7 @@ import FirebaseInstanceID
 import FirebaseMessaging
 import SwiftyGif
 import EasyAnimation
+import UserNotifications
 
 
 enum Billing: String, RawRepresentable {
@@ -40,6 +41,7 @@ enum Web: String, RawRepresentable {
 enum App: String {
     case Kakaolink = "kakaolink"
     case Kakaotalk = "kakaotalk"
+    case Deeplink = "deeplink"
     case Ispmobile = "ispmobile"
 }
 
@@ -50,9 +52,9 @@ enum This: String {
     case Openbanner = "open app banner"
     case Closebanner = "close app banner"
     case AppVersion = "store app version"
+    case OpenSettings = "push permission setting"
+    case SettingsInfo = "push permission info"
 }
-
-
 
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler{
     var webView: WKWebView!
@@ -78,12 +80,40 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.view.backgroundColor = UIColor.white
         
         UIApplication.shared.statusBarView?.backgroundColor = UIColor.white
-        NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.applicationDidBecomeActive), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.pushReceiver), name: Notification.Name("fcm_data"), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.kakaoReceiver), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.linkReceiver), name: Notification.Name("deep_link"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.linkReceiver), name: Notification.Name("kakao_link"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.linkReceiver), name: Notification.Name("dynamic_link"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.tokenReceiver), name: Notification.Name("device_token"), object: nil)
     }
     
+    @objc func applicationDidBecomeActive(_ notification: NSNotification?) {
+        if webView != nil {
+            self.sendRegisteredForNotifications()
+        }
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+ 
+        if let pushNo = appDelegate.sharedData["pushno"] {
+            self.httpRequest("https://push.hellonature.net/push/update/\(pushNo)", parameters: ["uid": self.getDeviceToken()] as AnyObject)
+            guard let startURL = appDelegate.sharedData["pushlink"], startURL.count > 0 else {
+                return
+            }
+            self.banner.removeFromSuperview()
+            self.mainView = self.webView
+            self.startWebview(startURL)
+            appDelegate.sharedData["pushno"] = nil
+            appDelegate.sharedData["pushlink"] = nil
+        } else if let kakaolink = appDelegate.sharedData[App.Kakaolink.rawValue] {
+            self.loadPage("\(This.Domain.rawValue)\(kakaolink)", key: App.Kakaolink.rawValue)
+            return
+        } else if let deeplink = appDelegate.sharedData[App.Deeplink.rawValue] {
+            self.loadPage(deeplink, key: App.Deeplink.rawValue)
+            return
+        } else if let userInfo = notification?.userInfo, let deeplink = userInfo["link"] as? String {
+            self.loadPage(deeplink)
+        }
+    }
 
     func version() -> String {
         let dictionary = Bundle.main.infoDictionary!
@@ -109,7 +139,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     func createWebview(){
         let config = WKWebViewConfiguration()
         config.userContentController = self.createWebviewController()
-        
         self.createMainview(config: config)
         self.createBannerview(config: config)
     }
@@ -124,6 +153,22 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView.load(URLRequest(url: URL(string: url)!))
     }
     
+    func loadPage(_ url: String, key: String? = nil) -> () {
+        DispatchQueue.global().async {
+            DispatchQueue.main.async {
+                self.startWebview(url)
+                self.banner.removeFromSuperview()
+                self.mainView = self.webView
+                self.navigationController?.isToolbarHidden = true
+            }
+            if let key = key {
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()) {
+                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                    appDelegate.sharedData[key] = nil
+                }
+            }
+        }
+    }
     
     @objc func setUserAgent() {
         webView.evaluateJavaScript("navigator.userAgent") { [weak webView] (result, error) in
@@ -133,7 +178,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 } else {
                     self.uagt = userAgent
                 }
-                
                 userAgent += " token/\(self.getDeviceToken())"
                 userAgent += " platform/iphone_app"
                 userAgent += " updated/\(self.currentVersion == self.version())"
@@ -163,8 +207,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     func removeSplash(){
         self.tween(current: self.splash, next: self.mainView!)
         if self.mainView == self.webView {
-            sleep(1)
-            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(2)) {
                 UIApplication.shared.isStatusBarHidden = false
                 self.webView.frame.origin.y = UIApplication.shared.statusBarFrame.height
                 self.webView.frame.size.height = self.screenSize.height - UIApplication.shared.statusBarFrame.height
@@ -177,10 +220,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView = WKWebView(frame: CGRect(x: 0, y: 0, width: self.screenSize.width, height: self.screenSize.height), configuration: config)
         webView.navigationDelegate = self
         webView.uiDelegate = self
+        webView.configuration.preferences.setValue(true, forKey : "developerExtrasEnabled")
         self.view.addSubview(webView)
         self.startWebview(This.Base.rawValue)
     }
-    
     
     /** 배너뷰 초기설정 및 만들기 **/
     func createBannerview(config: WKWebViewConfiguration){
@@ -227,6 +270,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     /** 스크립트메시지 핸들러 **/
+    @available(iOS 8.0, *)
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if(message.name == "callbackHandler") {
             if let body:NSDictionary = (message.body as? NSDictionary){
@@ -255,6 +299,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                         return
                     }
                     self.currentVersion = version
+                // 앱 알림설정
+                case This.OpenSettings.rawValue:
+                    self.openAppSettings()
+                case This.SettingsInfo.rawValue:
+                    self.sendRegisteredForNotifications()
                 default:
                     setNeedsStatusBarAppearanceUpdate()
                 }
@@ -333,7 +382,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 }
             }
         }
-        
         decisionHandler(.allow)
     }
     
@@ -364,32 +412,18 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
     }
     
-//    func bannerAnimation(fadeIn:Bool){
-//        UIView.animate(withDuration: 0.5, animations: {
-//            self.banner.alpha = fadeIn ? 1 : 0
-//        }, completion: {
-//            (value: Bool) in
-//            if !fadeIn{
-//                self.banner.removeFromSuperview()
-//            }
-//        })
-//    }
-    
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
         let alertController = UIAlertController(title: message, message: nil,
                                                 preferredStyle: UIAlertControllerStyle.alert);
-        
         alertController.addAction(UIAlertAction(title: "확인", style: UIAlertActionStyle.cancel) {
             _ in completionHandler()}
         );
-        
         self.present(alertController, animated: true, completion: {});
     }
     
     
     func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
-        
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .actionSheet)
         alertController.addAction(UIAlertAction(title: "확인", style: .default, handler: { (action) in
             completionHandler(true)
@@ -401,17 +435,14 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
     
     @objc func tokenReceiver(_ notification: NSNotification?){
-        print("@@@@tokenReceiver", self.getDeviceToken())
         self.setUserAgent()
     }
 
-    
     /** FCM 메세지에서 시작페이지 가져오기 **/
     @objc func pushReceiver(_ notification: NSNotification?){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        
         if let pushNo = appDelegate.sharedData["pushno"] {
-            self.httpRequest("https://api.hellonature.net/push/update/\(pushNo)", parameters: ["uid": self.getDeviceToken()] as AnyObject)
+            self.httpRequest("https://push.hellonature.net/push/update/\(pushNo)", parameters: ["uid": self.getDeviceToken()] as AnyObject)
             guard let startURL = appDelegate.sharedData["pushlink"], startURL.count > 0 else {
                 return
             }
@@ -423,20 +454,19 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
     }
     
-    /** 카카오링크 시작페이지 가져오기 **/
-    @objc func kakaoReceiver(_ notification: NSNotification?){
+
+    /** 딥링크로 이동하기 **/
+    @objc func linkReceiver(_ notification: NSNotification?){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        
         if let kakaolink = appDelegate.sharedData[App.Kakaolink.rawValue] {
-            DispatchQueue.global().async {
-                DispatchQueue.main.async {
-                    self.startWebview("\(This.Domain.rawValue)\(kakaolink)")
-                    self.banner.removeFromSuperview()
-                    self.mainView = self.webView
-                    self.navigationController?.isToolbarHidden = true
-                    appDelegate.sharedData[App.Kakaolink.rawValue] = nil
-                }
-            }
-            
+            self.loadPage("\(This.Domain.rawValue)\(kakaolink)", key: App.Kakaolink.rawValue)
+            return
+        } else if let deeplink = appDelegate.sharedData[App.Deeplink.rawValue] {
+            self.loadPage(deeplink, key: App.Deeplink.rawValue)
+            return
+        } else if let userInfo = notification?.userInfo, let deeplink = userInfo["link"] as? String {
+            self.loadPage(deeplink)
         }
     }
     
@@ -448,17 +478,17 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return deviceToken
     }
     
-    
     /** 웹뷰 활성화 될때 푸시된 데이터메세지 수신 메서드 등록하기 **/
     override func viewWillAppear(_ animated: Bool) {
         
     }
-    
+
     /** 웹뷰 비활성화 될때 **/
     override func viewWillDisappear(_ animated: Bool) {
-        //NotificationCenter.default.removeObserver(self)
+
     }
 }
+
 
 
 extension UIColor{
@@ -473,8 +503,7 @@ extension UIColor{
 }
 
 
-extension ViewController{
-    
+extension ViewController {
     /** 서버 통신 **/
     private func httpRequest(_ url: String, parameters: AnyObject) {
         guard let url = URL(string: url) else { return }
@@ -509,15 +538,47 @@ extension ViewController{
         }
         return nil
     }
+    
 }
 
 
-/** 스플래시 애니메이션 완료 시 **/
+/** 뷰컨트롤러 확장 **/
 extension ViewController: SwiftyGifDelegate {
     func gifDidLoop(sender: UIImageView) {
-        print("splash finished")
-        print("aslkfjalskd33", self.splash)
         self.removeSplash()
+    }
+    
+    func openAppSettings() {
+        UIApplication.shared.open(URL(string: UIApplicationOpenSettingsURLString)!, options: [:], completionHandler: nil)
+    }
+    
+    //기기 알림설정 정보 보내기
+    func sendRegisteredForNotifications() -> () {
+        webView.evaluateJavaScript("javascript:events.dispatch('hn.app.notification.enabled', \(self.isRegisteredForRemoteNotifications()))", completionHandler: nil)
+    }
+    //기기 알림설정 알아오기
+    func isRegisteredForRemoteNotifications() -> Bool {
+        if #available(iOS 10.0, *) {
+            var isRegistered = false
+            let semaphore = DispatchSemaphore(value: 0)
+            let current = UNUserNotificationCenter.current()
+            current.getNotificationSettings(completionHandler: { settings in
+                if settings.authorizationStatus != .authorized {
+                    isRegistered = false
+                } else {
+                    isRegistered = true
+                }
+                semaphore.signal()
+            })
+            _ = semaphore.wait(timeout: .now() + 5)
+            return isRegistered
+        } else {
+            if UIApplication.shared.isRegisteredForRemoteNotifications {
+                return true
+            } else {
+                return false
+            }
+        }
     }
 }
 

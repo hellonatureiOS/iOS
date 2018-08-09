@@ -25,19 +25,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         self.registerForPushNotifications()
         self.window!.rootViewController?.view.backgroundColor = UIColor.white
         self.viewController = self.window?.rootViewController as? ViewController
-//        UIApplication.shared.isStatusBarHidden = true
         return true
     }
 
 
-    /**
-    앱이 백그라운드에서 알림 메시지를받는 경우,
-    이 콜백은 사용자가 응용 프로그램을 시작하는 알림을 누를 때까지 발생하지 않습니다.
-    TODO : 알림 데이터를 처리합니다.
-    메시지 ID를 인쇄합니다.
-    **/
+    /** 앱이 백그라운드에서 알림 메시지를받는 경우 **/
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
-        debugPrint("@3 userInfo: \(userInfo)")
         Messaging.messaging().appDidReceiveMessage(userInfo)
         if let messageID = userInfo[gcmMessageIDKey] {
             debugPrint("@3 Message ID: \(messageID)")
@@ -46,8 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let messageID = userInfo[gcmMessageIDKey] {
-            debugPrint("@4 userInfo: \(userInfo)")
-            debugPrint("@4: \(messageID)")
+            debugPrint("@4 Message ID: \(messageID)")
             Messaging.messaging().appDidReceiveMessage(userInfo)
             completionHandler(UIBackgroundFetchResult.newData)
         }
@@ -61,11 +53,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /** 디바이스토큰 등록완료 후 호출 **/
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data)
     {
-        debugPrint("@6 didRegisterForRemoteNotificationsWithDeviceToken: DATA")
         let token = String(format: "%@", deviceToken as CVarArg)
         Messaging.messaging().apnsToken = deviceToken
         debugPrint("@6 deviceToken: \(token)")
-        debugPrint("@6 Firebase Token:", InstanceID.instanceID().token() as Any)
     }
     
     /** auto constraints fix **/
@@ -75,6 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             window.removeConstraints(window.constraints)
         }
     }
+    
 
     func application(received remoteMessage: MessagingRemoteMessage)
     {
@@ -146,7 +137,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     /** 알림 데이터 전송 **/
     func setSharedData(userInfo: [AnyHashable: Any], send: Bool){
-        
+        print("@@@@\(userInfo)")
         guard let pushNo = userInfo["push_no"] else {
             return
         }
@@ -155,17 +146,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             return
         }
         sharedData["pushlink"] = startURL
-    
+        
         if send {
             NotificationCenter.default.post(name: Notification.Name("fcm_data"), object: nil)
         }
     }
 
-    /**
-    FCM이 새로운 FCM 토큰을 받을 때마다 호출
-    알림허용 주제를 설정
-    이 토큰을 응용 프로그램 서버에 알림을 보낼 수 있습니다.
-    **/
+
     /** 새로운 FCM 토큰을 받을 때마다 호출 **/
     func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String)
     {
@@ -193,7 +180,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         //수신완료
         completionHandler([.alert, .sound])
     }
-
+    
     /** 알림 메세지 탭 동작시 호출 **/
     @available(iOS 10.0, *)
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void)
@@ -205,35 +192,51 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         completionHandler()
     }
     
-    
+    /** 딥링크 **/
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+        // 카카오링크
         if KLKTalkLinkCenter.shared().isTalkLinkCallback(url) {
             sharedData["kakaolink"] = url.query
+            NotificationCenter.default.post(name: Notification.Name("kakao_link"), object: nil)
             return true
         }
+        // 커스텀 스키마 딥링크
+        if let link = url.valueOf("link") {
+            sharedData["deeplink"] = link
+            NotificationCenter.default.post(name: Notification.Name("deep_link"), object: nil)
+            return true
+        }
+        
         return false
     }
     
+    /** 파이어베이스 다이나믹 링크 **/
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+        let handled = DynamicLinks.dynamicLinks()?.handleUniversalLink(userActivity.webpageURL!) { (dynamiclink, error) in
+            if let link = dynamiclink!.url {
+                NotificationCenter.default.post(name: Notification.Name("dynamic_link"), object: nil, userInfo: ["link" : String(describing: link)])
+            }
+        }
+
+        return handled!
+    }
+    
+
     func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
         if KLKTalkLinkCenter.shared().isTalkLinkCallback(url) {
             sharedData["kakaolink"] = url.query
             let alert = UIAlertController(title: "알림", message: "test" , preferredStyle: .alert)
             let aAction = UIAlertAction(title: url.query, style: .default)
             alert.addAction(aAction)
-  
-            
             return true
         }
         return false
     }
-    
 }
-
 
 extension Notification.Name {
     static let fcm_data = Notification.Name("fcm_data")
 }
-
 
 extension MessagingDelegate {
     func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String) {
@@ -243,5 +246,12 @@ extension MessagingDelegate {
     // 직접적인 데이터 메시지를 활성화하려면 Messaging.messaging (). shouldEstablishDirectChannel을 true로 설정합니다.
     func messaging(_ messaging: Messaging, didReceive remoteMessage: MessagingRemoteMessage) {
         print("@18 Received data message: \(remoteMessage.appData)")
+    }
+}
+
+extension URL {
+    func valueOf(_ queryParamaterName: String) -> String? {
+        guard let url = URLComponents(string: self.absoluteString) else { return nil }
+        return url.queryItems?.first(where: { $0.name == queryParamaterName })?.value
     }
 }

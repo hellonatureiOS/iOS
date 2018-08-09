@@ -3,6 +3,9 @@ PODS:
   - Firebase/Core (4.4.0):
     - FirebaseAnalytics (= 4.0.4)
     - FirebaseCore (= 4.0.9)
+  - Firebase/DynamicLinks (4.4.0):
+    - Firebase/Core
+    - FirebaseDynamicLinks (= 2.1.0)
   - Firebase/Messaging (4.4.0):
     - Firebase/Core
     - FirebaseMessaging (= 2.0.5)
@@ -14,6 +17,8 @@ PODS:
   - FirebaseCore (4.0.9):
     - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
     - nanopb (~> 0.3)
+  - FirebaseDynamicLinks (2.1.0):
+    - FirebaseAnalytics (~> 4.0)
   - FirebaseInstanceID (2.0.5)
   - FirebaseMessaging (2.0.5):
     - FirebaseAnalytics (~> 4.0)
@@ -37,6 +42,7 @@ PODS:
 DEPENDENCIES:
   - EasyAnimation
   - Firebase/Core
+  - Firebase/DynamicLinks
   - Firebase/Messaging
   - SwiftyGif
 
@@ -46,6 +52,7 @@ SPEC REPOS:
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
+    - FirebaseDynamicLinks
     - FirebaseInstanceID
     - FirebaseMessaging
     - GoogleToolboxForMac
@@ -58,6 +65,7 @@ SPEC CHECKSUMS:
   Firebase: 3e92884a63e8f76d107c43a67d2ab9071e1eda10
   FirebaseAnalytics: 722b53c7b32bfc7806b06e0093a2f5180d4f2c5a
   FirebaseCore: ebe73f64302705e693b1de9919a76edbdd17a19d
+  FirebaseDynamicLinks: ed4cb6c42705aaa5e841ed2d76e3a4bddbec10c1
   FirebaseInstanceID: f2b688c66b972f30d7fa9f5f9f91455454a03b47
   FirebaseMessaging: e25dc87045e76dfe9e920a5741dc3fe7e3ef2268
   GoogleToolboxForMac: 2501e2ad72a52eb3dfe7bd9aee7dad11b858bd20
@@ -65,6 +73,6 @@ SPEC CHECKSUMS:
   Protobuf: 03eef2ee0b674770735cf79d9c4d3659cf6908e8
   SwiftyGif: aad44b7ef0ad1d599ba83d7aa5759e916b520c42
 
-PODFILE CHECKSUM: acc8efcd9dae9728c00d5ab79ff7992d20456ac2
+PODFILE CHECKSUM: 1078b7fbad834ebdb1e9658fc868c1dc450a84e7
 
 COCOAPODS: 1.5.0
