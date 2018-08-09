@@ -68,3 +68,11 @@ fastlane/test_output
 
 hellonature.xcodeproj/xcshareddata/xcschemes/hellonature.xcscheme
 hellonature.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+Pods/EasyAnimation/LICENSE
+Pods/EasyAnimation/README.md
+Pods/EasyAnimation/EasyAnimation/EAAnimationFuture.swift
+Pods/EasyAnimation/EasyAnimation/EasyAnimation.swift
+Pods/EasyAnimation/EasyAnimation/RBBSpringAnimation/RBBBlockBasedArray.swift
+Pods/EasyAnimation/EasyAnimation/RBBSpringAnimation/RBBLinearInterpolation.swift
+Pods/EasyAnimation/EasyAnimation/RBBSpringAnimation/RBBSpringAnimation.swift
+Pods/FirebaseDynamicLinks/Frameworks/FirebaseDynamicLinks.framework/FirebaseDynamicLinks
