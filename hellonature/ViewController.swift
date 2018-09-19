@@ -102,8 +102,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         EasyAnimation.enable()
         super.viewDidLoad()
         self.screenSize = UIScreen.main.bounds
+        
+        sleep(1)
+        
         self.createWebview()
-        self.createSplash()
         self.createToolbar()
         self.mainView = self.webView
         self.view.backgroundColor = UIColor.white
@@ -167,7 +169,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         let config = WKWebViewConfiguration()
         config.userContentController = self.createWebviewController()
         self.createMainview(config: config)
-        self.createBannerview(config: config)
     }
     
     /** 기본 웹뷰의 시작 페이지 불러오기 **/
@@ -215,55 +216,14 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
     }
     
-    /** 스플래시 애니메이션 붙이기 **/
-    func createSplash(){
-        let gifManager = SwiftyGifManager(memoryLimit: 20)
-        let gifImage = UIImage(gifName: "intro")
-        let gifView = UIImageView(gifImage: gifImage, manager: gifManager, loopCount: 1)
-        gifView.frame = CGRect(x: 0, y: 0, width: 250, height: 250)
-        gifView.center = self.view.center
-        gifView.contentMode = UIViewContentMode.scaleAspectFit
-        gifView.delegate = self
-        self.splash = UIView(frame: self.view.frame)
-        self.splash.addSubview(gifView)
-        self.splash.backgroundColor = UIColor(red: 0.11, green: 0.25, blue: 0.13, alpha:1.0)
-        self.view.addSubview(self.splash)
-        self.showStatusBar = false
-    }
-    
-    /** 스플래시 애니메이션 삭제 **/
-    func removeSplash(){
-        self.tween(current: self.splash, next: self.mainView!)
-        if self.mainView == self.webView {
-            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(0)) {
-                UIApplication.shared.isStatusBarHidden = false
-                self.webView.frame.origin.y = UIApplication.shared.statusBarFrame.height
-                self.webView.frame.size.height = self.screenSize.height - UIApplication.shared.statusBarFrame.height
-            }
-        }
-    }
-    
     /** 기본 웹뷰 초기설정 및 만들기 **/
     func createMainview(config: WKWebViewConfiguration){
         webView = WKWebView(frame: CGRect(x: 0, y: 0, width: self.screenSize.width, height: self.screenSize.height), configuration: config)
-        webView.navigationDelegate = self
+        //webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.configuration.preferences.setValue(true, forKey : "developerExtrasEnabled")
         self.view.addSubview(webView)
         self.startWebview(Hellonature.Mobile.url)
-    }
-    
-    /** 배너뷰 초기설정 및 만들기 **/
-    func createBannerview(config: WKWebViewConfiguration){
-        banner = WKWebView(frame: CGRect(x: 0, y: 0, width: self.screenSize.width, height: self.screenSize.height), configuration: config)
-        banner.navigationDelegate = self
-        banner.uiDelegate = self
-        banner.scrollView.isScrollEnabled = false
-        banner.scrollView.bounces = false
-        banner.backgroundColor = UIColor(rgb: 0x1C3F21)
-        banner.load(URLRequest(url: URL(string: Hellonature.Banner.url)!))
-        banner.isHidden = true
-        self.view.addSubview(banner)
     }
     
     /** 웹뷰 컨트롤러 만들기 **/
@@ -426,14 +386,6 @@ extension UIColor{
         )
     }
 }
-
-
-extension ViewController: SwiftyGifDelegate {
-    func gifDidLoop(sender: UIImageView) {
-        self.removeSplash()
-    }
-}
-
 
 /** 뷰컨트롤러 확장 **/
 extension ViewController {
