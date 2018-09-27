@@ -40,7 +40,11 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
+<<<<<<< HEAD
 	<string>143</string>
+=======
+	<string>18</string>
+>>>>>>> parent of 5c130dd... constraint 깨짐 개선, 페이스북 블랭크 링크
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
 	<key>KAKAO_APP_KEY</key>
