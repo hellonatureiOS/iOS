@@ -11,7 +11,7 @@ import SwiftyGif
 import EasyAnimation
 import UserNotifications
 
-
+// PG사 도메인
 enum Billing: String, RawRepresentable {
     case Inicis = "inicis.com"
     case Hyundaicard = "hyundaicard.com"
@@ -23,35 +23,66 @@ enum Billing: String, RawRepresentable {
     case Citibank = "citibank.co.kr"
 }
 
+// 팝업허용 도메인
 enum Blank: String, RawRepresentable {
     case Itunes = "itunes.apple.com"
     case Kakaostory = "story.kakao.com"
     case Naverblog = "blog.naver.com"
-    case Facebook = "www.facebook.com"
+    case Facebook = "ko-kr.facebook.com"
     case Instagram = "www.instagram.com"
 }
 
-enum Web: String, RawRepresentable {
+// 스키마 모음
+enum Scheme: String, RawRepresentable {
     case Http = "http"
     case Https = "https"
     case About = "about"
     case Javascript = "javascript"
-}
-
-enum App: String {
     case Kakaolink = "kakaolink"
     case Kakaotalk = "kakaotalk"
     case Deeplink = "deeplink"
     case Ispmobile = "ispmobile"
 }
 
-enum This: String {
-    case Domain = "https://www.hellonature.net"
-    case Base = "https://www.hellonature.net/mobile_shop"
-    case Banner = "/app"
+// 헬로네이처
+enum Hellonature: String {
+    case Mobile
+    case Banner
+    case Domain
+    case Push
+    var Base: String {
+        return "https://www.hellonature.net"
+    }
+    var url: String {
+        switch self {
+        case .Mobile:
+            return "\(Base)/mobile_shop"
+        case .Banner:
+            return "\(Base)/mobile_shop/app"
+        default:
+            return Base
+        }
+    }
+}
+
+//푸시 API
+enum Push: String {
+    case Update
+    var API: String{
+        return "https://push.hellonature.net/push"
+    }
+    var url: String {
+        switch self {
+        case .Update:
+            return "\(API)/update"
+        }
+    }
+}
+
+// 웹뷰 인터페이스
+enum Bridge: String {
     case Openbanner = "open app banner"
     case Closebanner = "close app banner"
-    case AppVersion = "store app version"
     case OpenSettings = "push permission setting"
     case SettingsInfo = "push permission info"
 }
@@ -63,7 +94,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     var mainView: WKWebView?
     var webViewStarted:Bool = false
     @objc var showStatusBar:Bool = false
-    var currentVersion:String!
     var screenSize:CGRect!
     var uagt: String?
     
@@ -72,13 +102,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         EasyAnimation.enable()
         super.viewDidLoad()
         self.screenSize = UIScreen.main.bounds
-        
-        sleep(1)
-        
         self.createWebview()
+        self.createSplash()
         self.createToolbar()
         self.mainView = self.webView
-        self.currentVersion = self.version()
         self.view.backgroundColor = UIColor.white
         
         UIApplication.shared.statusBarView?.backgroundColor = UIColor.white
@@ -90,14 +117,16 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         NotificationCenter.default.addObserver(self, selector: #selector(self.tokenReceiver), name: Notification.Name("device_token"), object: nil)
     }
     
+    /** 앱 활성화될 때 **/
     @objc func applicationDidBecomeActive(_ notification: NSNotification?) {
+        // 웹뷰가 만들어졌다면 웹뷰에 알림등록 상태를 전달한다.
         if webView != nil {
             self.sendRegisteredForNotifications()
         }
+        // 앱델리게이트에서 푸시, 카카오링크, 딥링크등의 정보를 얻어와서 해당링크로 이동시킨다.
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
- 
         if let pushNo = appDelegate.sharedData["pushno"] {
-            self.httpRequest("https://push.hellonature.net/push/update/\(pushNo)", parameters: ["uid": self.getDeviceToken()] as AnyObject)
+            self.httpRequest("\(Push.Update.url)\(pushNo)", parameters: ["uid": self.getDeviceToken()] as AnyObject)
             guard let startURL = appDelegate.sharedData["pushlink"], startURL.count > 0 else {
                 return
             }
@@ -106,25 +135,19 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             self.startWebview(startURL)
             appDelegate.sharedData["pushno"] = nil
             appDelegate.sharedData["pushlink"] = nil
-        } else if let kakaolink = appDelegate.sharedData[App.Kakaolink.rawValue] {
-            self.loadPage("\(This.Domain.rawValue)\(kakaolink)", key: App.Kakaolink.rawValue)
+        } else if let kakaolink = appDelegate.sharedData[Scheme.Kakaolink.rawValue] {
+            self.loadPage("\(Hellonature.Domain.url)\(kakaolink)", key: Scheme.Kakaolink.rawValue)
             return
-        } else if let deeplink = appDelegate.sharedData[App.Deeplink.rawValue] {
-            self.loadPage(deeplink, key: App.Deeplink.rawValue)
+        } else if let deeplink = appDelegate.sharedData[Scheme.Deeplink.rawValue] {
+            self.loadPage(deeplink, key: Scheme.Deeplink.rawValue)
             return
         } else if let userInfo = notification?.userInfo, let deeplink = userInfo["link"] as? String {
             self.loadPage(deeplink)
         }
     }
-
-    func version() -> String {
-        let dictionary = Bundle.main.infoDictionary!
-        let version = dictionary["CFBundleShortVersionString"] as! String
-        let build = dictionary["CFBundleVersion"] as! String
-        return "\(version).\(build)"
-    }
     
-    
+   
+    /** 결제시 백버튼에 사용할 네이게이션 툴바 **/
     func createToolbar(){
         let item: UIBarButtonItem = UIBarButtonItem(title: "돌아가기", style: UIBarButtonItemStyle.plain, target: self, action: #selector(self.backwardWebview))
         toolbarItems = [item]
@@ -132,16 +155,19 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         navigationController?.isNavigationBarHidden = true
     }
     
+    /** 백버튼 **/
     @objc func backwardWebview() {
         if webView.canGoBack {
             webView.goBack()
         }
     }
     
+    /** 웹뷰 만들기 **/
     func createWebview(){
         let config = WKWebViewConfiguration()
         config.userContentController = self.createWebviewController()
         self.createMainview(config: config)
+        self.createBannerview(config: config)
     }
     
     /** 기본 웹뷰의 시작 페이지 불러오기 **/
@@ -171,6 +197,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
     }
     
+    /** 웹뷰의 userAgent 설정 **/
     @objc func setUserAgent() {
         webView.evaluateJavaScript("navigator.userAgent") { [weak webView] (result, error) in
             if let webView = webView, var userAgent = result as? String {
@@ -181,7 +208,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 }
                 userAgent += " token/\(self.getDeviceToken())"
                 userAgent += " platform/iphone_app"
-                userAgent += " updated/\(self.currentVersion == self.version())"
+                userAgent += " version/\(self.version())"
                 webView.customUserAgent = userAgent
                 print("@@@\(userAgent)")
             }
@@ -208,7 +235,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     func removeSplash(){
         self.tween(current: self.splash, next: self.mainView!)
         if self.mainView == self.webView {
-            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(2)) {
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(0)) {
                 UIApplication.shared.isStatusBarHidden = false
                 self.webView.frame.origin.y = UIApplication.shared.statusBarFrame.height
                 self.webView.frame.size.height = self.screenSize.height - UIApplication.shared.statusBarFrame.height
@@ -219,11 +246,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     /** 기본 웹뷰 초기설정 및 만들기 **/
     func createMainview(config: WKWebViewConfiguration){
         webView = WKWebView(frame: CGRect(x: 0, y: 0, width: self.screenSize.width, height: self.screenSize.height), configuration: config)
-        //webView.navigationDelegate = self
+        webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.configuration.preferences.setValue(true, forKey : "developerExtrasEnabled")
         self.view.addSubview(webView)
-        self.startWebview(This.Base.rawValue)
+        self.startWebview(Hellonature.Mobile.url)
     }
     
     /** 배너뷰 초기설정 및 만들기 **/
@@ -234,11 +261,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         banner.scrollView.isScrollEnabled = false
         banner.scrollView.bounces = false
         banner.backgroundColor = UIColor(rgb: 0x1C3F21)
-        banner.load(URLRequest(url: URL(string: "\(This.Base.rawValue)\(This.Banner.rawValue)")!))
+        banner.load(URLRequest(url: URL(string: Hellonature.Banner.url)!))
         banner.isHidden = true
         self.view.addSubview(banner)
     }
-
+    
     /** 웹뷰 컨트롤러 만들기 **/
     func createWebviewController() -> WKUserContentController{
         let contentController = WKUserContentController()
@@ -248,71 +275,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         return contentController
     }
     
-    /** 스라이드 애니메이션 **/
-    func tween(current:UIView, next:UIView){
-        next.frame.origin.x = next.frame.width
-        UIView.animate(withDuration: 1.0,
-            delay: 0.0,
-            usingSpringWithDamping: 0.7,
-            initialSpringVelocity: 0.0,
-            options: [],
-            animations: {
-                current.frame.origin.x = -current.frame.width
-                next.frame.origin.x = 0
-            },
-            completion: { finished in
-                current.removeFromSuperview()
-            })
-    }
-    
     /** 웹뷰 컨틀롤러에 추가될 스크립트 **/
     func getUserScript(script: String) -> WKUserScript{
         return WKUserScript(source: script, injectionTime: WKUserScriptInjectionTime.atDocumentStart, forMainFrameOnly: false)
     }
     
-    /** 스크립트메시지 핸들러 **/
-    @available(iOS 8.0, *)
-    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        if(message.name == "callbackHandler") {
-            if let body:NSDictionary = (message.body as? NSDictionary){
-                guard let message = body["message"] as? String else {
-                    return
-                }
-                switch message {
-                // 앱 배너 열기
-                case This.Openbanner.rawValue:
-                    self.banner.isHidden = false
-                    self.mainView = self.banner
-                // 앱 배너 닫기, 페이지 이동
-                case This.Closebanner.rawValue:
-                    if !self.banner.isHidden {
-                        setNeedsStatusBarAppearanceUpdate()
-                    }
-                    self.tween(current: self.banner, next: self.webView)
-                    self.webView.frame.origin.y = UIApplication.shared.statusBarFrame.size.height
-                    guard let url = body["param"] as? String, !url.isEmpty else {
-                        return
-                    }
-                    self.startWebview(url)
-                // 앱 버전 설정
-                case This.AppVersion.rawValue:
-                    guard let version = body["param"] as? String, !version.isEmpty else {
-                        return
-                    }
-                    self.currentVersion = version
-                // 앱 알림설정
-                case This.OpenSettings.rawValue:
-                    self.openAppSettings()
-                case This.SettingsInfo.rawValue:
-                    self.sendRegisteredForNotifications()
-                default:
-                    setNeedsStatusBarAppearanceUpdate()
-                }
-            }
-        }
-    }
-    
-   
     // 웹뷰 보안 체크
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard let url = navigationAction.request.url else {
@@ -328,7 +295,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
         
         // scheme 형태로 호출할 경우
-        if !Web.values.contains(url.scheme ?? "") {
+        if !Scheme.values.contains(url.scheme ?? "") {
             // 앱이 설치되어 있는 경우
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -340,9 +307,9 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 if let scheme = url.scheme {
                     switch scheme {
                         //카카오 톡일 경우
-                        case App.Kakaotalk.rawValue: warnning = (message: "카카오톡 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/kakaotalk/id362057947?mt=8")
+                        case Scheme.Kakaotalk.rawValue: warnning = (message: "카카오톡 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/kakaotalk/id362057947?mt=8")
                         //이니시스 결제
-                        case App.Ispmobile.rawValue: warnning = (message: "ISP/페이북 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/isp-%ED%8E%98%EC%9D%B4%EB%B6%81/id369125087?mt=8")
+                        case Scheme.Ispmobile.rawValue: warnning = (message: "ISP/페이북 앱이 설치되지 않았습니다.", url: "https://itunes.apple.com/kr/app/isp-%ED%8E%98%EC%9D%B4%EB%B6%81/id369125087?mt=8")
                         // 그외
                         default: warnning = nil
                     }
@@ -368,8 +335,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 return url.absoluteString.contains(host)
             })
             
-            // 팝업은 체크 하지 말자.
-            if url.scheme != Web.About.rawValue {
+            // 히스토리 백버튼 보이기
+            if url.scheme != Scheme.About.rawValue {
                 navigationController?.setToolbarHidden(contains.count == 0, animated: true)
             }
     
@@ -385,7 +352,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
         decisionHandler(.allow)
     }
-    
     
     // 팝업
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
@@ -435,6 +401,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.present(alertController, animated: true, completion: nil)
     }
     
+    
+    
     /** 웹뷰 활성화 될때 푸시된 데이터메세지 수신 메서드 등록하기 **/
     override func viewWillAppear(_ animated: Bool) {
         
@@ -458,6 +426,14 @@ extension UIColor{
         )
     }
 }
+
+
+extension ViewController: SwiftyGifDelegate {
+    func gifDidLoop(sender: UIImageView) {
+        self.removeSplash()
+    }
+}
+
 
 /** 뷰컨트롤러 확장 **/
 extension ViewController {
@@ -497,12 +473,10 @@ extension ViewController {
         }
     }
     
-=======
->>>>>>> parent of 5c130dd... constraint 깨짐 개선, 페이스북 블랭크 링크
     @objc func tokenReceiver(_ notification: NSNotification?){
         self.setUserAgent()
     }
-
+    
     /** FCM 메세지에서 시작페이지 가져오기 **/
     @objc func pushReceiver(_ notification: NSNotification?){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -519,16 +493,16 @@ extension ViewController {
         }
     }
     
-
+    
     /** 딥링크로 이동하기 **/
     @objc func linkReceiver(_ notification: NSNotification?){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         
-        if let kakaolink = appDelegate.sharedData[App.Kakaolink.rawValue] {
-            self.loadPage("\(This.Domain.rawValue)\(kakaolink)", key: App.Kakaolink.rawValue)
+        if let kakaolink = appDelegate.sharedData[Scheme.Kakaolink.rawValue] {
+            self.loadPage("\(Hellonature.Domain.url)\(kakaolink)", key: Scheme.Kakaolink.rawValue)
             return
-        } else if let deeplink = appDelegate.sharedData[App.Deeplink.rawValue] {
-            self.loadPage(deeplink, key: App.Deeplink.rawValue)
+        } else if let deeplink = appDelegate.sharedData[Scheme.Deeplink.rawValue] {
+            self.loadPage(deeplink, key: Scheme.Deeplink.rawValue)
             return
         } else if let userInfo = notification?.userInfo, let deeplink = userInfo["link"] as? String {
             self.loadPage(deeplink)
@@ -543,76 +517,7 @@ extension ViewController {
         return deviceToken
     }
     
-    /** 웹뷰 활성화 될때 푸시된 데이터메세지 수신 메서드 등록하기 **/
-    override func viewWillAppear(_ animated: Bool) {
-        
-    }
 
-    /** 웹뷰 비활성화 될때 **/
-    override func viewWillDisappear(_ animated: Bool) {
-
-    }
-}
-
-
-
-extension UIColor{
-    convenience init(rgb: UInt){
-        self.init(
-            red: CGFloat((rgb & 0xFF0000) >> 16) / 255.0,
-            green: CGFloat((rgb & 0x00FF00) >> 8) / 255.0,
-            blue: CGFloat(rgb & 0x0000FF) / 255.0,
-            alpha: CGFloat(1.0)
-        )
-    }
-}
-
-
-extension ViewController {
-    /** 서버 통신 **/
-    private func httpRequest(_ url: String, parameters: AnyObject) {
-        guard let url = URL(string: url) else { return }
-        debugPrint(url)
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
-        } catch let error {
-            print(error.localizedDescription)
-        }
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        
-        let session = URLSession.shared
-        session.dataTask(with: request) { (data, response, error) in
-            guard error == nil else {
-                return
-            }
-        }.resume()
-    }
-    
-    /** json 파싱 **/
-    func parseJSON(_ data: Data?) -> AnyObject? {
-        if let data = data {
-            do {
-                let json = try JSONSerialization.jsonObject(with: data, options: [])
-                return json as AnyObject
-            } catch let error {
-                debugPrint(error.localizedDescription)
-            }
-        }
-        return nil
-    }
-    
-}
-
-
-/** 뷰컨트롤러 확장 **/
-extension ViewController: SwiftyGifDelegate {
-    func gifDidLoop(sender: UIImageView) {
-        self.removeSplash()
-    }
-    
     func openAppSettings() {
         UIApplication.shared.open(URL(string: UIApplicationOpenSettingsURLString)!, options: [:], completionHandler: nil)
     }
@@ -644,6 +549,67 @@ extension ViewController: SwiftyGifDelegate {
                 return false
             }
         }
+    }
+    
+    /** 앱버전 정보 **/
+    func version() -> String {
+        let dictionary = Bundle.main.infoDictionary!
+        let version = dictionary["CFBundleShortVersionString"] as! String
+        let build = dictionary["CFBundleVersion"] as! String
+        return "\(version).\(build)"
+    }
+    
+    /** 스라이드 애니메이션 **/
+    func tween(current:UIView, next:UIView){
+        next.frame.origin.x = next.frame.width
+        UIView.animate(withDuration: 1.0,
+                       delay: 0.0,
+                       usingSpringWithDamping: 0.7,
+                       initialSpringVelocity: 0.0,
+                       options: [],
+                       animations: {
+                        current.frame.origin.x = -current.frame.width
+                        next.frame.origin.x = 0
+        },
+                       completion: { finished in
+                        current.removeFromSuperview()
+        })
+    }
+    
+    
+    /** 비동기 POST 요청 **/
+    private func httpRequest(_ url: String, parameters: AnyObject) {
+        guard let url = URL(string: url) else { return }
+        debugPrint(url)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
+        } catch let error {
+            print(error.localizedDescription)
+        }
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        
+        let session = URLSession.shared
+        session.dataTask(with: request) { (data, response, error) in
+            guard error == nil else {
+                return
+            }
+            }.resume()
+    }
+    
+    /** json 파싱 **/
+    func parseJSON(_ data: Data?) -> AnyObject? {
+        if let data = data {
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: [])
+                return json as AnyObject
+            } catch let error {
+                debugPrint(error.localizedDescription)
+            }
+        }
+        return nil
     }
 }
 
