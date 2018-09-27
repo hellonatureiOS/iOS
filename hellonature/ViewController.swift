@@ -188,8 +188,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
     }
     
-<<<<<<< HEAD
-=======
     /** 스플래시 애니메이션 붙이기 **/
     func createSplash(){
         let gifManager = SwiftyGifManager(memoryLimit: 20)
@@ -218,7 +216,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
     }
     
->>>>>>> parent of 5c130dd... constraint 깨짐 개선, 페이스북 블랭크 링크
     /** 기본 웹뷰 초기설정 및 만들기 **/
     func createMainview(config: WKWebViewConfiguration){
         webView = WKWebView(frame: CGRect(x: 0, y: 0, width: self.screenSize.width, height: self.screenSize.height), configuration: config)
@@ -229,8 +226,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         self.startWebview(This.Base.rawValue)
     }
     
-<<<<<<< HEAD
-=======
     /** 배너뷰 초기설정 및 만들기 **/
     func createBannerview(config: WKWebViewConfiguration){
         banner = WKWebView(frame: CGRect(x: 0, y: 0, width: self.screenSize.width, height: self.screenSize.height), configuration: config)
@@ -243,8 +238,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         banner.isHidden = true
         self.view.addSubview(banner)
     }
-    
->>>>>>> parent of 5c130dd... constraint 깨짐 개선, 페이스북 블랭크 링크
+
     /** 웹뷰 컨트롤러 만들기 **/
     func createWebviewController() -> WKUserContentController{
         let contentController = WKUserContentController()
@@ -440,9 +434,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }))
         self.present(alertController, animated: true, completion: nil)
     }
-    
-<<<<<<< HEAD
-    
     
     /** 웹뷰 활성화 될때 푸시된 데이터메세지 수신 메서드 등록하기 **/
     override func viewWillAppear(_ animated: Bool) {
