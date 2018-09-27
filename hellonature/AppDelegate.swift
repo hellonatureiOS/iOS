@@ -58,6 +58,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         debugPrint("@6 deviceToken: \(token)")
     }
     
+    /** auto constraints fix **/
+    func application(_ application: UIApplication, willChangeStatusBarFrame newStatusBarFrame: CGRect) {
+        let windows = UIApplication.shared.windows
+        for window in windows {
+            window.removeConstraints(window.constraints)
+        }
+    }
+    
+
     func application(received remoteMessage: MessagingRemoteMessage)
     {
         debugPrint("@7 remoteMessage:\(remoteMessage.appData)")
