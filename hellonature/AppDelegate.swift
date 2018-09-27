@@ -8,6 +8,7 @@
 import UserNotifications
 import Firebase
 import FirebaseMessaging
+import FirebaseDynamicLinks
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate
