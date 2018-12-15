@@ -24,6 +24,14 @@
 		6AB9644620185C4200B76FA1 /* KakaoCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AB9644320185C4200B76FA1 /* KakaoCommon.framework */; };
 		6ADF12C7205F8F5A00A34E9D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6ADF12C6205F8F5A00A34E9D /* Main.storyboard */; };
 		6AF0736D1E4D99230082B417 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6AF0736C1E4D99230082B417 /* Assets.xcassets */; };
+		79606685219C9DEC00951672 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 79606684219C9DEC00951672 /* icon.png */; };
+		79606687219C9E5700951672 /* permission.png in Resources */ = {isa = PBXBuildFile; fileRef = 79606686219C9E5700951672 /* permission.png */; };
+		7960668D219CA99300951672 /* loading.png in Resources */ = {isa = PBXBuildFile; fileRef = 7960668C219CA99300951672 /* loading.png */; };
+		79606691219CAE1900951672 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 79606690219CAE1900951672 /* logo.png */; };
+		7960669D219E19AE00951672 /* test6.png in Resources */ = {isa = PBXBuildFile; fileRef = 79606697219E19AD00951672 /* test6.png */; };
+		796066A7219F552100951672 /* splashimage.png in Resources */ = {isa = PBXBuildFile; fileRef = 796066A6219F552100951672 /* splashimage.png */; };
+		7971007921C3295100B7F53C /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7971007821C3295000B7F53C /* MessageUI.framework */; };
+		7971007B21C32D9000B7F53C /* MessageComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7971007A21C32D9000B7F53C /* MessageComposer.swift */; };
 		F7DA441D3C447B052640ECD2 /* Pods_hellonature.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9519B2F46D713EE3892C05A9 /* Pods_hellonature.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 /* End PBXBuildFile section */
 
@@ -53,6 +61,14 @@
 		6ADF12C6205F8F5A00A34E9D /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		6AF0736C1E4D99230082B417 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6E8FC14A95747B35DAE77193 /* Pods-hellonature.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hellonature.debug.xcconfig"; path = "Pods/Target Support Files/Pods-hellonature/Pods-hellonature.debug.xcconfig"; sourceTree = "<group>"; };
+		79606684219C9DEC00951672 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon.png; path = ../../../Pictures/icon.png; sourceTree = "<group>"; };
+		79606686219C9E5700951672 /* permission.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = permission.png; path = ../../../Pictures/permission.png; sourceTree = "<group>"; };
+		7960668C219CA99300951672 /* loading.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = loading.png; path = ../../../Pictures/loading.png; sourceTree = "<group>"; };
+		79606690219CAE1900951672 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = ../../logo.png; sourceTree = "<group>"; };
+		79606697219E19AD00951672 /* test6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = test6.png; path = ../../test6.png; sourceTree = "<group>"; };
+		796066A6219F552100951672 /* splashimage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = splashimage.png; path = ../../splashimage.png; sourceTree = "<group>"; };
+		7971007821C3295000B7F53C /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		7971007A21C32D9000B7F53C /* MessageComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageComposer.swift; sourceTree = "<group>"; };
 		8904936A67EFD87DF5B4B442 /* Pods-hellonature.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hellonature.release.xcconfig"; path = "Pods/Target Support Files/Pods-hellonature/Pods-hellonature.release.xcconfig"; sourceTree = "<group>"; };
 		9519B2F46D713EE3892C05A9 /* Pods_hellonature.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_hellonature.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -62,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7971007921C3295100B7F53C /* MessageUI.framework in Frameworks */,
 				6A5A441C1E2F12790054EADD /* UserNotifications.framework in Frameworks */,
 				1A7741991C8DE0D3000A1B53 /* SystemConfiguration.framework in Frameworks */,
 				1A7741971C8DE09D000A1B53 /* AVFoundation.framework in Frameworks */,
@@ -105,11 +122,18 @@
 				1AF433F61C43EB090011764B /* ViewController.swift */,
 				6A8182811F56A886000BB126 /* AppDelegate.swift */,
 				6ADF12C6205F8F5A00A34E9D /* Main.storyboard */,
+				796066A6219F552100951672 /* splashimage.png */,
 				1AF433FD1C43EB090011764B /* LaunchScreen.storyboard */,
+				79606684219C9DEC00951672 /* icon.png */,
+				79606690219CAE1900951672 /* logo.png */,
+				79606697219E19AD00951672 /* test6.png */,
 				6A5A44191E2F0AF50054EADD /* GoogleService-Info.plist */,
+				7960668C219CA99300951672 /* loading.png */,
+				79606686219C9E5700951672 /* permission.png */,
 				1AF434001C43EB090011764B /* Info.plist */,
 				6A3921591FA16EA4008D6556 /* intro.gif */,
 				6A8182831F56A99D000BB126 /* NotificationsController.swift */,
+				7971007A21C32D9000B7F53C /* MessageComposer.swift */,
 			);
 			path = hellonature;
 			sourceTree = "<group>";
@@ -117,6 +141,7 @@
 		657A82419289470D1521D2A6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				7971007821C3295000B7F53C /* MessageUI.framework */,
 				6AB9644320185C4200B76FA1 /* KakaoCommon.framework */,
 				6AB9644120185C4200B76FA1 /* KakaoLink.framework */,
 				6AB9644220185C4200B76FA1 /* KakaoMessageTemplate.framework */,
@@ -179,7 +204,7 @@
 						CreatedOnToolsVersion = 7.2;
 						DevelopmentTeam = F288LP4869;
 						LastSwiftMigration = 0820;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -225,9 +250,15 @@
 			files = (
 				6ADF12C7205F8F5A00A34E9D /* Main.storyboard in Resources */,
 				1AF433FF1C43EB090011764B /* LaunchScreen.storyboard in Resources */,
+				7960669D219E19AE00951672 /* test6.png in Resources */,
+				79606691219CAE1900951672 /* logo.png in Resources */,
 				6AF0736D1E4D99230082B417 /* Assets.xcassets in Resources */,
+				79606685219C9DEC00951672 /* icon.png in Resources */,
+				796066A7219F552100951672 /* splashimage.png in Resources */,
 				6A39215A1FA16EA4008D6556 /* intro.gif in Resources */,
+				79606687219C9E5700951672 /* permission.png in Resources */,
 				6A5A441A1E2F0AF50054EADD /* GoogleService-Info.plist in Resources */,
+				7960668D219CA99300951672 /* loading.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,7 +302,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-hellonature/Pods-hellonature-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-hellonature/Pods-hellonature-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/EasyAnimation/EasyAnimation.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
@@ -288,7 +319,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-hellonature/Pods-hellonature-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-hellonature/Pods-hellonature-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -299,6 +330,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6A8182841F56A99D000BB126 /* NotificationsController.swift in Sources */,
+				7971007B21C32D9000B7F53C /* MessageComposer.swift in Sources */,
 				6A8182821F56A886000BB126 /* AppDelegate.swift in Sources */,
 				1AF433F71C43EB090011764B /* ViewController.swift in Sources */,
 			);
@@ -436,7 +468,7 @@
 				CODE_SIGN_ENTITLEMENTS = hellonature/hellonature.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = F288LP4869;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
@@ -452,7 +484,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = net.hellonature.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = development2;
 				SWIFT_INCLUDE_PATHS = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "KakaoOpenSDK-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -471,7 +503,7 @@
 				CODE_SIGN_ENTITLEMENTS = hellonature/hellonature.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = F288LP4869;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
@@ -487,7 +519,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = net.hellonature.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = development2;
 				SWIFT_INCLUDE_PATHS = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "KakaoOpenSDK-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
