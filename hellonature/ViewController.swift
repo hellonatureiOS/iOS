@@ -521,7 +521,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             print(host)
             
             print("@@@host2")
-        
+        //커밋 테스트
             var isPopUp:Bool = false
             switch host {
             // 앱 배너 열기
